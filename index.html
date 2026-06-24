@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>АиСД 2 — экзамен</title>
+<style>
+:root {
+  --bg:#f6f7fb; --paper:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#6d5dfc; --soft:#ede9fe; --good:#0f766e; --warn:#b45309;
+  --shadow:0 18px 45px rgba(31,41,55,.10); --radius:20px;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; min-height:100%; }
+body { font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background:radial-gradient(circle at 0 0, rgba(109,93,252,.14), transparent 30rem), var(--bg); color:var(--ink); line-height:1.55; }
+code { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:6px; padding:1px 5px; }
+.page { width:min(1180px, calc(100% - 28px)); margin:0 auto; }
+.topbar { position:sticky; top:0; z-index:30; border-bottom:1px solid rgba(229,231,235,.9); background:rgba(255,255,255,.92); backdrop-filter:blur(16px); }
+.topbar-inner { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:42px; }
+.brand { display:flex; align-items:center; min-width:0; align-self:stretch; }
+.brand-title { display:flex; align-items:center; height:100%; font-weight:850; letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px; }
+.tabs { display:flex; gap:6px; overflow-x:auto; padding:6px 0; }
+.tab-btn { border:1px solid var(--line); background:#fff; color:#374151; padding:6px 10px; border-radius:999px; cursor:pointer; font-weight:750; white-space:nowrap; font-size:13px; }
+.tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.hero-mini { padding:12px 0 5px; }
+.hero-mini h1 { margin:0; font-size:clamp(20px,3vw,30px); letter-spacing:-.045em; line-height:1.08; }
+.hero-mini p { margin:5px 0 0; max-width:850px; color:var(--muted); font-size:13px; }
+.tab-panel.hidden { display:none; }
+section { margin:16px 0; }
+.section-title { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:12px; }
+.section-title h2 { margin:0; font-size:clamp(20px,2.4vw,28px); letter-spacing:-.035em; }
+.section-title p { margin:0; color:var(--muted); max-width:620px; font-size:14px; }
+.grid { display:grid; grid-template-columns:repeat(12,1fr); gap:14px; }
+.card { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 10px 26px rgba(31,41,55,.055); padding:20px; }
+.span-3 { grid-column:span 3; } .span-4 { grid-column:span 4; } .span-6 { grid-column:span 6; } .span-12 { grid-column:span 12; }
+.card h3 { margin:0 0 10px; font-size:18px; }
+.memo-intro p { margin:0; color:var(--muted); font-size:15px; }
+.muted { color:var(--muted); }
+ul.clean, ol.clean { padding-left:22px; margin:0; }
+ul.clean li, ol.clean li { margin:8px 0; }
+.topic-list { columns:2; column-gap:34px; }
+.topic-list li { break-inside:avoid; margin:8px 0; }
+.theory-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0; padding:12px 14px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.72); }
+.progress { font-weight:900; color:#312e81; white-space:nowrap; }
+.card-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.study-card { cursor:pointer; min-height:156px; padding:18px; border-radius:20px; border:2px solid var(--line); background:#fff; box-shadow:0 10px 28px rgba(31,41,55,.065); transition:transform .15s, box-shadow .15s, border-color .15s, background .15s; display:flex; flex-direction:column; justify-content:space-between; }
+.study-card:hover { transform:translateY(-2px); box-shadow:0 18px 38px rgba(31,41,55,.11); border-color:#c4b5fd; }
+.study-card.learned { border-color:#34d399; background:linear-gradient(180deg,#fff,#ecfdf5); }
+.card-title { font-size:22px; line-height:1.1; margin:0; letter-spacing:-.035em; }
+.card-meta { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.ticket-info { display:inline-flex; border:1px solid #c4b5fd; border-radius:999px; padding:5px 9px; font-size:12px; color:#4c1d95; background:#f5f3ff; font-weight:800; }
+.learned-info { display:inline-flex; border:1px solid #99f6e4; border-radius:999px; padding:5px 9px; font-size:12px; color:var(--good); background:#ecfdf5; font-weight:800; }
+.card-actions { display:flex; justify-content:space-between; align-items:center; margin-top:16px; color:var(--muted); font-size:13px; }
+.learn-dot { width:10px; height:10px; border-radius:999px; background:#d1d5db; display:inline-block; margin-right:6px; }
+.learned .learn-dot, .done .learn-dot { background:#10b981; }
+.footer { color:var(--muted); font-size:13px; margin:28px 0 44px; }
+.modal { position:fixed; inset:0; z-index:100; display:none; background:rgba(17,24,39,.72); }
+.modal.open { display:block; }
+.modal-shell { height:100vh; display:flex; flex-direction:column; background:#f8fafc; }
+.modal-top { min-height:50px; padding:7px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.96); }
+.modal-title-small { font-weight:900; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px; }
+.modal-controls { display:flex; gap:7px; align-items:center; flex-wrap:wrap; justify-content:end; }
+.btn { border:1px solid var(--line); background:#fff; color:#374151; border-radius:999px; padding:7px 11px; cursor:pointer; font-weight:800; font-size:13px; }
+.btn:hover { background:#f3f4f6; }
+.btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.btn.good { background:#eef2ff; border-color:#c7d2fe; color:#4338ca; }
+.btn.warn { background:#f8fafc; border-color:#cbd5e1; color:#334155; }
+.btn.close { font-size:21px; line-height:1; width:36px; height:36px; padding:0; }
+.modal-body { flex:1; min-height:0; padding:14px; }
+.flip-stage { height:100%; perspective:1600px; }
+.flip-inner { height:100%; transition:transform .55s; transform-style:preserve-3d; position:relative; }
+.flip-inner.flipped { transform:rotateY(180deg); }
+.face { position:absolute; inset:0; backface-visibility:hidden; width:min(1120px,100%); margin:0 auto; border:1px solid var(--line); border-radius:24px; background:#fff; box-shadow:var(--shadow); overflow:hidden; }
+.face.front { display:grid; place-items:center; padding:26px; text-align:center; }
+.face.front h2 { margin:0; font-size:clamp(36px,7vw,78px); letter-spacing:-.065em; line-height:.98; }
+.face.back { transform:rotateY(180deg); }
+.back-scroll { height:100%; overflow-y:auto; padding:34px min(46px,5vw) 44px; }
+.back-scroll h2 { margin:0 0 16px; font-size:clamp(30px,4vw,52px); letter-spacing:-.055em; }
+.back-scroll h3 { margin:26px 0 10px; font-size:21px; color:#312e81; }
+.back-scroll p { margin:10px 0; } .back-scroll li { margin:8px 0; }
+.draw-box { border:1px dashed #a78bfa; background:#faf5ff; border-radius:16px; padding:14px 16px; margin:12px 0; }
+.pseudo { white-space:pre; overflow-x:auto; background:#111827; color:#e5e7eb; border-radius:16px; padding:16px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; font-size:13px; line-height:1.5; }
+.theory-table { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; }
+.theory-table th,.theory-table td { border:1px solid var(--line); padding:9px 10px; vertical-align:top; }
+.theory-table th { background:#f5f3ff; text-align:left; }
+
+.bank-controls { display:grid; grid-template-columns:repeat(6, minmax(145px, 1fr)); gap:10px; align-items:end; }
+.bank-search-control { grid-column:1 / -1; }
+.bank-search-control input { min-height:48px; font-size:16px; }
+.bank-controls label { display:block; font-size:12px; font-weight:850; color:var(--muted); margin:0 0 5px; }
+.bank-controls input, .bank-controls select { width:100%; border:1px solid var(--line); border-radius:12px; padding:10px 11px; background:#fff; color:var(--ink); font:inherit; font-size:14px; }
+.bank-summary { margin-top:10px; color:var(--muted); font-size:13px; }
+.bank-hint { margin-top:6px; color:var(--muted); font-size:12px; line-height:1.45; }
+.bank-hint strong { color:#374151; }
+.bank-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:14px; }
+.practice-card { border:1px solid var(--line); border-radius:18px; background:#fff; padding:16px; box-shadow:0 10px 26px rgba(31,41,55,.055); display:flex; flex-direction:column; gap:10px; }
+.practice-card h3 { margin:0; font-size:16px; line-height:1.35; }
+.practice-card .num { color:#4c1d95; font-weight:950; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; padding:4px 8px; font-size:12px; font-weight:800; background:#f9fafb; color:#374151; }
+.chip.theme { background:#f5f3ff; border-color:#ddd6fe; color:#4c1d95; }
+.chip.source { background:#ecfeff; border-color:#a5f3fc; color:#0e7490; }
+.chip.topic { background:#eef2ff; border-color:#c7d2fe; color:#4338ca; }
+.chip.priority-high { background:#fef2f2; border-color:#fecaca; color:#b91c1c; }
+.chip.priority-medium { background:#fff7ed; border-color:#fed7aa; color:#c2410c; }
+.chip.priority-low { background:#f3f4f6; border-color:#e5e7eb; color:#4b5563; }
+.chip.difficulty-easy { background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+.chip.difficulty-medium { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+.chip.difficulty-hard { background:#faf5ff; border-color:#e9d5ff; color:#7e22ce; }
+.chip.difficulty-very-hard { background:#fdf2f8; border-color:#fbcfe8; color:#be185d; }
+.practice-meta { display:grid; gap:8px; }
+.practice-meta p { margin:0; font-size:13px; color:var(--muted); }
+.practice-meta strong { color:#374151; }
+
+.practice-card.done { border-color:#34d399; background:linear-gradient(180deg,#fff,#ecfdf5); }
+.practice-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:auto; padding-top:6px; }
+
+.syntax-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.syntax-card { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 10px 26px rgba(31,41,55,.055); padding:18px; }
+.syntax-card h3 { margin:0 0 10px; font-size:18px; }
+.syntax-card p { margin:8px 0; color:var(--muted); }
+.syntax-card .pseudo { margin:10px 0 0; }
+.syntax-card ul { margin:8px 0 0; padding-left:20px; }
+.syntax-card li { margin:6px 0; }
+@media (max-width:900px) { .syntax-grid { grid-template-columns:1fr; } }
+
+@media (max-width:900px) { .bank-controls { grid-template-columns:repeat(2,minmax(0,1fr)); } .bank-search-control { grid-column:1 / -1; } .bank-grid { grid-template-columns:1fr; } }
+@media (max-width:560px) { .bank-controls { grid-template-columns:1fr; } }
+
+@media (max-width:900px) { .span-3,.span-4,.span-6 { grid-column:span 12; } .card-grid { grid-template-columns:1fr; } .topic-list { columns:1; } .section-title,.theory-toolbar { align-items:flex-start; flex-direction:column; } .topbar-inner { align-items:center; flex-direction:column; padding:7px 0; } .tabs { width:100%; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="page topbar-inner">
+    <div class="brand">
+      <div class="brand-title">АиСД 2 — экзамен</div>
+    </div>
+    <nav class="tabs" aria-label="Вкладки">
+      <button class="tab-btn active" id="btn-memo" onclick="switchTab('memo')">Памятка</button>
+      <button class="tab-btn" id="btn-theory1" onclick="switchTab('theory1')">Теория 1 · сортировки</button>
+      <button class="tab-btn" id="btn-theory2" onclick="switchTab('theory2')">Теория 2 · остальное</button>
+      <button class="tab-btn" id="btn-practicebank" onclick="switchTab('practicebank')">Банк практики</button>
+      <button class="tab-btn" id="btn-csyntax" onclick="switchTab('csyntax')">C-шпаргалка</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <section id="panel-memo" class="tab-panel">
+    <div class="grid">
+      <article class="card span-12 memo-intro">
+        <h3>О назначении</h3>
+        <p>Этот одностраничник предназначен для подготовки к экзамену по дисциплине 2 семестра «Алгоритмы и структуры данных».</p>
+      </article>
+      <article class="card span-6">
+        <h3>Содержание HTML</h3>
+        <ul class="clean">
+          <li><strong>Памятка</strong> — правила написания, список тем, термины и общий прогресс.</li>
+          <li><strong>Теория 1 · сортировки</strong> — карточки по сортировкам из списка тем.</li>
+          <li><strong>Теория 2 · остальное</strong> — карточки по деревьям, графам и алгоритмам.</li>
+          <li><strong>Банк практики</strong> — задачи без решений с фильтрами, приоритетом, сложностью и отметками выполнения.</li>
+          <li><strong>C-шпаргалка</strong> — библиотеки, функции и заготовки для письменных задач на C.</li>
+        </ul>
+      </article>
+      <article class="card span-6">
+        <h3>Прогресс подготовки</h3>
+        <ul class="clean">
+          <li><strong>Практика:</strong> <span id="memo-progress-practice">0/0 (0%)</span> задач отмечено выполненными.</li>
+          <li><strong>Теория 1 · сортировки:</strong> <span id="memo-progress-theory1">0/0 (0%)</span> карточек выучено.</li>
+          <li><strong>Теория 2 · остальное:</strong> <span id="memo-progress-theory2">0/0 (0%)</span> карточек выучено.</li>
+        </ul>
+      </article>
+      <article class="card span-6">
+        <h3>Правила написания</h3>
+        <ul class="clean">
+          <li>В теоретических вопросах можно писать словами, схемами и псевдокодом.</li>
+          <li>В практических задачах нужен код на C.</li>
+          <li>В C-коде лучше объявлять переменные в начале блока, а не в заголовке <code>for</code>.</li>
+          <li>Для динамической памяти нужны проверки <code>malloc/calloc == NULL</code> и освобождение памяти.</li>
+          <li>Структуры данных в задачах лучше писать, даже если просят только одну процедуру.</li>
+          <li>Если просят одну операцию, не нужно писать все остальные операции, кроме необходимых вспомогательных.</li>
+          <li>Симметричные случаи можно не расписывать полностью, если явно указать, что они симметричны.</li>
+        </ul>
+      </article>
+      <article class="card span-6">
+        <h3>Термины</h3>
+        <ul class="clean">
+          <li><strong>Двоичное B-дерево</strong> — двоичное дерево, в котором нет вершин степени 1.</li>
+          <li><strong>B-дерево</strong> — страничное B-tree, где узел содержит несколько ключей.</li>
+          <li><strong>КЛП</strong> — прямой обход: корень, левое поддерево, правое поддерево.</li>
+          <li><strong>ЛКП</strong> — симметричный обход.</li>
+          <li><strong>ЛПК</strong> — обратный обход, он же постфиксная запись для дерева выражения.</li>
+        </ul>
+      </article>
+      <article class="card span-12">
+        <h3>Темы экзамена</h3>
+        <ol class="clean topic-list"><li>Сортировка Хоара (быстрая сортировка)</li><li>Сортировка Шелла</li><li>Сортировки вставками и линейным выбором с подсчетом</li><li>Сортировка просеиванием</li><li>Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева</li><li>Обходы двоичного дерева и синтаксический анализ выражений</li><li>АVL деревья. Балансировка. Вращения.</li><li>Черно- красные деревья. Добавление и удаление вершин. Балансировка, вращения</li><li>В-деревья. Добавление и удаление вершин. Балансировка, вращения.</li><li>Графы. Виды графов. Различные представления графов</li><li>Алгоритмы поиска минимального остова графа</li><li>Поиск путей в графе. Алгоритм Дейкстры</li><li>Поиск путей в графе, Алгоритм Флойда- Уоршела</li></ol>
+      </article>
+    </div>
+  </section>
+
+  <section id="panel-theory1" class="tab-panel hidden">
+    <div class="section-title"><div><h2>Теория 1 · сортировки</h2><p>Карточки названы по формулировкам из списка экзаменационных тем.</p></div></div>
+    <div class="card">
+      <h3>План ответа</h3>
+      <ol class="clean">
+        <li>Определить сортировку и основную идею.</li>
+        <li>Описать алгоритм шагами.</li>
+        <li>Показать пример на массиве.</li>
+        <li>Нарисовать схему, если она помогает ответу.</li>
+        <li>Указать сложность, память и устойчивость.</li>
+        <li>Написать достоинства, недостатки и хорошие/плохие входные данные.</li>
+      </ol>
+    </div>
+    <div class="theory-toolbar"><div class="muted">Нажми на карточку, чтобы открыть её на весь экран.</div><div class="progress" id="progress-theory1"></div></div>
+    <div class="card-grid" id="grid-theory1"></div>
+  </section>
+
+  <section id="panel-theory2" class="tab-panel hidden">
+    <div class="section-title"><div><h2>Теория 2 · остальное</h2><p>Карточки названы по формулировкам из списка экзаменационных тем.</p></div></div>
+    <div class="card">
+      <h3>План ответа</h3>
+      <ol class="clean">
+        <li>Дать определение структуры или алгоритма.</li>
+        <li>Написать, зачем это нужно и какую задачу решает.</li>
+        <li>Описать свойства, представление данных или основные состояния.</li>
+        <li>Описать операции или шаги алгоритма.</li>
+        <li>Нарисовать схему: дерево, вращение, страницу B-дерева, граф, матрицу или таблицу расстояний.</li>
+        <li>Указать сложность, ограничения и важные частные случаи.</li>
+      </ol>
+    </div>
+    <div class="theory-toolbar"><div class="muted">Нажми на карточку, чтобы открыть её на весь экран.</div><div class="progress" id="progress-theory2"></div></div>
+    <div class="card-grid" id="grid-theory2"></div>
+  </section>
+
+
+
+  <section id="panel-practicebank" class="tab-panel hidden">
+    <div class="section-title">
+      <div>
+        <h2>Банк практики</h2>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bank-controls">
+        <div class="bank-search-control">
+          <label for="practiceSearch">Поиск по формулировке</label>
+          <input id="practiceSearch" type="search" placeholder="Например: Дейкстра, B-дерево, листья, цикл" oninput="renderPracticeBank()">
+        </div>
+        <div>
+          <label for="practiceThemeFilter">Тема экзамена</label>
+          <select id="practiceThemeFilter" onchange="renderPracticeBank()"></select>
+        </div>
+        <div>
+          <label for="practiceSourceFilter">Источник</label>
+          <select id="practiceSourceFilter" onchange="renderPracticeBank()"></select>
+        </div>
+        <div>
+          <label for="practicePriorityFilter">Приоритет</label>
+          <select id="practicePriorityFilter" onchange="renderPracticeBank()">
+            <option value="all">Все приоритеты</option>
+            <option value="Высокий">Высокий</option>
+            <option value="Средний">Средний</option>
+            <option value="Низкий">Низкий</option>
+          </select>
+        </div>
+        <div>
+          <label for="practiceDifficultyFilter">Сложность</label>
+          <select id="practiceDifficultyFilter" onchange="renderPracticeBank()">
+            <option value="all">Все сложности</option>
+            <option value="Лёгкая">Лёгкая</option>
+            <option value="Средняя">Средняя</option>
+            <option value="Сложная">Сложная</option>
+            <option value="Очень сложная">Очень сложная</option>
+          </select>
+        </div>
+        <div>
+          <label for="practiceStatusFilter">Статус</label>
+          <select id="practiceStatusFilter" onchange="renderPracticeBank()">
+            <option value="all">Все задачи</option>
+            <option value="todo">Не выполнены</option>
+            <option value="done">Выполнены</option>
+          </select>
+        </div>
+        <div>
+          <label for="practiceSort">Сортировка</label>
+          <select id="practiceSort" onchange="renderPracticeBank()">
+            <option value="priority">По приоритету</option>
+            <option value="difficulty-asc">По сложности: сначала лёгкие</option>
+            <option value="difficulty-desc">По сложности: сначала сложные</option>
+            <option value="number">По номеру</option>
+            <option value="theme">По теме экзамена</option>
+            <option value="topic">По тематике</option>
+            <option value="source">По источнику</option>
+            <option value="status">По статусу</option>
+          </select>
+        </div>
+      </div>
+      <div class="bank-summary" id="practiceBankSummary"></div>
+      <div class="bank-hint"><strong>Приоритет</strong> = вероятность/важность для экзамена. <strong>Сложность</strong> = трудность реализации на C: сколько случаев, указателей, памяти и алгоритмических шагов нужно не забыть.</div>
+    </div>
+    <div class="bank-grid" id="practiceBankGrid"></div>
+  </section>
+
+
+  <section id="panel-csyntax" class="tab-panel hidden">
+    <div class="section-title">
+      <div>
+        <h2>C-шпаргалка</h2>
+      </div>
+    </div>
+
+    <div class="syntax-grid">
+      <article class="syntax-card">
+        <h3>Минимальный набор подключений</h3>
+        <p>В большинстве экзаменационных задач хватит этих четырёх библиотек.</p>
+        <pre class="pseudo">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;limits.h&gt;</pre>
+        <ul>
+          <li><code>stdio.h</code> — ввод, вывод, файлы.</li>
+          <li><code>stdlib.h</code> — динамическая память, <code>abs</code>, завершение программы.</li>
+          <li><code>string.h</code> — строки, строковые ключи, копирование памяти.</li>
+          <li><code>limits.h</code> — <code>INT_MAX</code> для графов и бесконечности.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>stdio.h — ввод/вывод</h3>
+        <pre class="pseudo">printf("%d\n", x);
+scanf("%d", &amp;x);
+
+FILE *f;
+f = fopen("input.txt", "r");
+if (f == NULL) {
+    return 1;
+}
+fscanf(f, "%d", &amp;n);
+fclose(f);</pre>
+        <ul>
+          <li><code>printf</code>, <code>scanf</code> — стандартный ввод/вывод.</li>
+          <li><code>fprintf</code>, <code>fscanf</code> — ввод/вывод через файл.</li>
+          <li><code>fopen</code>, <code>fclose</code> — открыть и закрыть файл.</li>
+          <li><code>fgets</code>, <code>puts</code> — работа со строками.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>stdlib.h — память</h3>
+        <pre class="pseudo">Node *p;
+p = (Node *)malloc(sizeof(Node));
+if (p == NULL) {
+    return NULL;
+}
+
+int *a;
+a = (int *)calloc(n, sizeof(int));
+if (a == NULL) {
+    return 1;
+}
+
+free(a);
+a = NULL;</pre>
+        <ul>
+          <li><code>malloc(size)</code> — выделить блок памяти.</li>
+          <li><code>calloc(count, size)</code> — выделить массив и заполнить нулями.</li>
+          <li><code>realloc(ptr, size)</code> — изменить размер блока; лучше через временный указатель.</li>
+          <li><code>free(ptr)</code> — освободить память.</li>
+          <li><code>abs(x)</code>, <code>atoi(s)</code>, <code>atof(s)</code> — вспомогательные функции.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>string.h — строки и ключи</h3>
+        <pre class="pseudo">int cmp;
+cmp = strcmp(key, root-&gt;key);
+
+if (cmp &lt; 0) {
+    /* key меньше */
+} else if (cmp &gt; 0) {
+    /* key больше */
+} else {
+    /* нашли */
+}
+
+strncpy(node-&gt;key, key, KEY_SIZE - 1);
+node-&gt;key[KEY_SIZE - 1] = '\0';</pre>
+        <ul>
+          <li><code>strcmp(a, b)</code> — сравнить строки; для ключей использовать его, а не <code>==</code>.</li>
+          <li><code>strlen(s)</code> — длина строки.</li>
+          <li><code>strcpy</code>, <code>strncpy</code> — копирование строки.</li>
+          <li><code>strchr(s, ch)</code> — найти символ в строке.</li>
+          <li><code>memset</code>, <code>memcpy</code> — заполнение и копирование памяти.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>limits.h — бесконечность для графов</h3>
+        <pre class="pseudo">#define INF (INT_MAX / 4)
+
+for (i = 0; i &lt; n; i++) {
+    dist[i] = INF;
+}
+dist[start] = 0;
+
+if (dist[u] != INF &amp;&amp; dist[u] + w &lt; dist[v]) {
+    dist[v] = dist[u] + w;
+    parent[v] = u;
+}</pre>
+        <ul>
+          <li><code>INT_MAX</code> — максимум для <code>int</code>.</li>
+          <li><code>LONG_MAX</code> — максимум для <code>long</code>.</li>
+          <li>Для Дейкстры лучше брать <code>INT_MAX / 4</code>, чтобы снизить риск переполнения при <code>dist[u] + w</code>.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>ctype.h и math.h — по ситуации</h3>
+        <pre class="pseudo">#include &lt;ctype.h&gt;
+#include &lt;math.h&gt;
+
+if (isdigit((unsigned char)c)) { ... }
+if (isspace((unsigned char)c)) { ... }
+
+if (fabs(a - b) &lt; 1e-9) { ... }</pre>
+        <ul>
+          <li><code>isdigit</code>, <code>isalpha</code>, <code>isspace</code> — полезны для разбора выражений.</li>
+          <li><code>fabs</code> — модуль <code>double</code>.</li>
+          <li><code>sqrt</code>, <code>pow</code> — редко, но могут понадобиться в вычислениях.</li>
+        </ul>
+      </article>
+
+      <article class="syntax-card">
+        <h3>Шаблон узла дерева</h3>
+        <pre class="pseudo">typedef struct Node {
+    int value;
+    struct Node *left;
+    struct Node *right;
+} Node;
+
+Node *create_node(int value)
+{
+    Node *node;
+
+    node = (Node *)malloc(sizeof(Node));
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node-&gt;value = value;
+    node-&gt;left = NULL;
+    node-&gt;right = NULL;
+
+    return node;
+}</pre>
+      </article>
+
+      <article class="syntax-card">
+        <h3>Шаблон ребра графа</h3>
+        <pre class="pseudo">typedef struct Edge {
+    int from;
+    int to;
+    int weight;
+} Edge;
+
+Edge *edges;
+edges = (Edge *)malloc(m * sizeof(Edge));
+if (edges == NULL) {
+    return 1;
+}</pre>
+        <p>Этот шаблон подходит для задач, где граф задан списком рёбер.</p>
+      </article>
+
+      <article class="syntax-card">
+        <h3>Шаблон стека</h3>
+        <pre class="pseudo">typedef struct Stack {
+    int *data;
+    int top;
+    int capacity;
+} Stack;
+
+void init_stack(Stack *s, int capacity)
+{
+    s-&gt;data = (int *)malloc(capacity * sizeof(int));
+    s-&gt;top = -1;
+    s-&gt;capacity = capacity;
+}</pre>
+        <p>Стек нужен для постфиксной записи, перевода инфиксной записи в постфиксную и нерекурсивных обходов.</p>
+      </article>
+
+      <article class="syntax-card">
+        <h3>Что помнить в старом C-стиле</h3>
+        <ul>
+          <li>Объявлять переменные заранее: <code>int i;</code>, а не <code>for (int i = 0; ...)</code>.</li>
+          <li>Всегда проверять результат <code>malloc</code> и <code>calloc</code>.</li>
+          <li>При удалении узлов дерева обязательно делать <code>free</code>.</li>
+          <li>Для строковых ключей сравнивать через <code>strcmp</code>.</li>
+          <li>Для функций, которые не меняют данные, использовать <code>const</code>: <code>int search(const Node *root, int key)</code>.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+
+  <div class="footer">Статусы «выучено» и «выполнено» сохраняются локально в браузере.</div>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-shell">
+    <div class="modal-top">
+      <div class="modal-title-small" id="modalTitle">Карточка</div>
+      <div class="modal-controls">
+        <button class="btn" onclick="openPrevCard()">←</button>
+        <button class="btn primary" id="flipBtn" onclick="flipModalCard()">Перевернуть</button>
+        <button class="btn" onclick="openNextCard()">→</button>
+        <button class="btn good" id="learnBtn" onclick="toggleLearnedCurrent()">Отметить выученной</button>
+        <button class="btn close" onclick="closeModal()" aria-label="Закрыть">×</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="flip-stage">
+        <div class="flip-inner" id="flipInner">
+          <div class="face front" id="modalFront"><h2></h2></div>
+          <div class="face back"><div class="back-scroll" id="modalBack"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const decks = { theory1: [{"id": "quick-hoare", "title": "Быстрая сортировка Хоара", "ticket": "Встречалась в слитом билете 3", "html": "\n<h2>Быстрая сортировка Хоара</h2>\n\n<p>Быстрая сортировка Хоара — это внутренняя сортировка массива методом «разделяй и властвуй». На каждом шаге выбирается опорный элемент, массив разбивается на две части относительно опоры, после чего каждая часть сортируется тем же способом.</p>\n\n<h3>Идея алгоритма</h3>\n<p>Пусть дан участок массива <code>a[left..right]</code>. Выбирается опорный элемент <code>pivot</code>. Далее двумя указателями элементы переставляются так, чтобы слева оказались элементы, не превосходящие опорный, а справа — элементы, не меньшие опорного. После этого задача сводится к сортировке двух меньших участков.</p>\n<p>В схеме Хоара опорный элемент не обязан сразу вставать на своё окончательное место. Главное, что после прохода указателей получаются две части, которые можно сортировать независимо.</p>\n\n<h3>Алгоритм</h3>\n<ol>\n  <li>Если участок содержит 0 или 1 элемент, он уже отсортирован.</li>\n  <li>Выбрать опорный элемент, например средний элемент участка.</li>\n  <li>Поставить указатель <code>i</code> в начало участка, <code>j</code> — в конец.</li>\n  <li>Двигать <code>i</code> вправо, пока <code>a[i] &lt; pivot</code>.</li>\n  <li>Двигать <code>j</code> влево, пока <code>a[j] &gt; pivot</code>.</li>\n  <li>Если <code>i &lt;= j</code>, поменять <code>a[i]</code> и <code>a[j]</code>, затем увеличить <code>i</code> и уменьшить <code>j</code>.</li>\n  <li>После пересечения указателей рекурсивно отсортировать участки <code>left..j</code> и <code>i..right</code>.</li>\n</ol>\n\n<pre class=\"pseudo\">quick_sort(a, left, right):\n    if left >= right:\n        return\n\n    pivot = a[(left + right) / 2]\n    i = left\n    j = right\n\n    while i <= j:\n        while a[i] < pivot:\n            i = i + 1\n        while a[j] > pivot:\n            j = j - 1\n        if i <= j:\n            swap(a[i], a[j])\n            i = i + 1\n            j = j - 1\n\n    quick_sort(a, left, j)\n    quick_sort(a, i, right)</pre>\n\n<h3>Пример сортировки массива</h3>\n<p>Исходный массив:</p>\n<pre class=\"pseudo\">7 3 4 5 8 2 1 6</pre>\n<table class=\"theory-table\">\n<tr><th>Шаг</th><th>Действие</th><th>Состояние</th></tr>\n<tr><td>1</td><td>Выбираем опору <code>6</code> и разбиваем массив</td><td><code>3 4 5 2 1 | 6 | 8 7</code></td></tr>\n<tr><td>2</td><td>Сортируем левую часть <code>3 4 5 2 1</code>, например с опорой <code>3</code></td><td><code>2 1 | 3 | 4 5</code></td></tr>\n<tr><td>3</td><td>Сортируем малые части</td><td><code>1 2 3 4 5</code></td></tr>\n<tr><td>4</td><td>Сортируем правую часть <code>8 7</code></td><td><code>7 8</code></td></tr>\n<tr><td>Итог</td><td>Объединение отсортированных частей</td><td><code>1 2 3 4 5 6 7 8</code></td></tr>\n</table>\n<p>Конкретные перестановки зависят от выбранной схемы разбиения и выбора опорного элемента, но принцип остаётся тем же: разделить массив и рекурсивно отсортировать части.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать массив, опорный элемент и два указателя: левый указатель идёт вправо, правый — влево. После разбиения нужно подписать левую часть как элементы <code>&le; pivot</code>, правую — как элементы <code>&ge; pivot</code>. Можно рядом нарисовать дерево рекурсивных разбиений.</div>\n\n<h3>Сложность и свойства</h3>\n<table class=\"theory-table\">\n<tr><th>Случай / свойство</th><th>Оценка</th><th>Пояснение</th></tr>\n<tr><td>Лучший случай</td><td><code>O(n log n)</code></td><td>Опора каждый раз делит массив примерно пополам.</td></tr>\n<tr><td>Средний случай</td><td><code>O(n log n)</code></td><td>В среднем разбиения достаточно сбалансированы.</td></tr>\n<tr><td>Худший случай</td><td><code>O(n²)</code></td><td>Опора постоянно оказывается минимальным или максимальным элементом.</td></tr>\n<tr><td>Дополнительная память</td><td><code>O(log n)</code> в среднем</td><td>Память расходуется на стек рекурсии. В худшем случае возможно <code>O(n)</code>.</td></tr>\n<tr><td>Устойчивость</td><td>Неустойчива</td><td>При обменах равные элементы могут менять относительный порядок.</td></tr>\n</table>\n\n<h3>Достоинства и недостатки</h3>\n<ul>\n  <li>Достоинство: обычно работает быстрее многих сортировок с такой же средней асимптотикой.</li>\n  <li>Достоинство: не требует дополнительного массива.</li>\n  <li>Достоинство: можно реализовать нерекурсивно с явным стеком участков.</li>\n  <li>Недостаток: существует худший случай <code>O(n²)</code>.</li>\n  <li>Недостаток: сортировка неустойчива.</li>\n</ul>\n\n<h3>Хорошие и плохие входные данные</h3>\n<ul>\n  <li>Хорошие данные: опорный элемент близок к медиане, разбиения примерно равные.</li>\n  <li>Плохие данные: опора постоянно даёт разбиение на пустую часть и часть размера <code>n-1</code>.</li>\n  <li>Если всегда брать первый или последний элемент как опору, уже отсортированный массив может стать плохим случаем.</li>\n</ul>\n"}, {"id": "shell", "title": "Сортировка Шелла", "ticket": "Встречалась в слитом билете 7", "html": "\n<h2>Сортировка Шелла</h2>\n\n<p>Сортировка Шелла — это обобщение сортировки вставками. Сначала элементы сортируются не соседними позициями, а с некоторым шагом <code>k</code>. Затем шаг уменьшается. На последнем проходе <code>k = 1</code>, поэтому выполняется обычная сортировка вставками, но массив к этому моменту уже частично упорядочен.</p>\n\n<h3>Идея алгоритма</h3>\n<p>Сортировка вставками хорошо работает на почти отсортированных массивах, но плохо переносит элементы на большие расстояния. Метод Шелла сначала сравнивает и переставляет элементы, расположенные далеко друг от друга. Благодаря этому элементы быстрее попадают ближе к своим окончательным местам.</p>\n<p>При фиксированном шаге <code>k</code> массив разбивается на несколько подпоследовательностей:</p>\n<pre class=\"pseudo\">a[0], a[k], a[2k], ...\na[1], a[1+k], a[1+2k], ...\n...</pre>\n<p>Каждая такая подпоследовательность сортируется вставками. Потом шаг уменьшается, и процесс повторяется.</p>\n\n<h3>Алгоритм</h3>\n<ol>\n  <li>Выбрать последовательность шагов, например <code>n/2, n/4, ..., 1</code> или другую убывающую последовательность.</li>\n  <li>Для каждого шага <code>k</code> выполнить сортировку вставками по подпоследовательностям элементов, отстоящих на <code>k</code>.</li>\n  <li>После каждого прохода массив становится более упорядоченным.</li>\n  <li>Последний проход обязательно выполняется с шагом <code>1</code>; он окончательно сортирует массив.</li>\n</ol>\n\n<pre class=\"pseudo\">shell_sort(a, n):\n    k = n / 2\n    while k > 0:\n        for i = k .. n-1:\n            x = a[i]\n            j = i\n            while j >= k and a[j-k] > x:\n                a[j] = a[j-k]\n                j = j - k\n            a[j] = x\n        k = k / 2</pre>\n\n<h3>Пример сортировки массива</h3>\n<p>Исходный массив:</p>\n<pre class=\"pseudo\">7 3 4 5 8 2 1 6</pre>\n<table class=\"theory-table\">\n<tr><th>Шаг</th><th>Что сортируется</th><th>Состояние массива</th></tr>\n<tr><td><code>k = 4</code></td><td>Сравниваются элементы через 4 позиции: <code>(7,8)</code>, <code>(3,2)</code>, <code>(4,1)</code>, <code>(5,6)</code></td><td><code>7 2 1 5 8 3 4 6</code></td></tr>\n<tr><td><code>k = 3</code></td><td>Сортируются подпоследовательности с шагом 3</td><td><code>4 2 1 5 6 3 7 8</code></td></tr>\n<tr><td><code>k = 1</code></td><td>Обычная сортировка вставками по почти отсортированному массиву</td><td><code>1 2 3 4 5 6 7 8</code></td></tr>\n</table>\n<p>В этом примере показана та же идея, что в лекции: на ранних проходах элементы быстро перемещаются на большие расстояния, а последний проход только доводит массив до полного порядка.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать массив в строку и дугами соединить элементы, которые сравниваются при шаге <code>k</code>. Например, для <code>k = 4</code> соединить позиции <code>0</code> и <code>4</code>, <code>1</code> и <code>5</code>, <code>2</code> и <code>6</code>, <code>3</code> и <code>7</code>. Затем показать, что при <code>k = 1</code> получается обычная сортировка вставками.</div>\n\n<h3>Сложность и свойства</h3>\n<table class=\"theory-table\">\n<tr><th>Свойство</th><th>Значение</th><th>Пояснение</th></tr>\n<tr><td>Сложность</td><td>Зависит от выбора шагов</td><td>В лекциях указано: от <code>O(n log² n)</code> до <code>O(n²)</code>.</td></tr>\n<tr><td>Лучший случай</td><td>Обычно лучше, чем у простой вставки</td><td>На почти отсортированных данных работает быстро.</td></tr>\n<tr><td>Худший случай</td><td>Может быть <code>O(n²)</code></td><td>При неудачной последовательности шагов.</td></tr>\n<tr><td>Дополнительная память</td><td><code>O(1)</code></td><td>Сортировка выполняется в исходном массиве.</td></tr>\n<tr><td>Устойчивость</td><td>Неустойчива</td><td>Элементы могут перепрыгивать через равные элементы на больших шагах.</td></tr>\n</table>\n\n<h3>Достоинства и недостатки</h3>\n<ul>\n  <li>Достоинство: проста и является естественным улучшением сортировки вставками.</li>\n  <li>Достоинство: не требует дополнительной памяти.</li>\n  <li>Достоинство: хорошо работает на частично упорядоченных массивах.</li>\n  <li>Недостаток: асимптотика зависит от выбранной последовательности шагов.</li>\n  <li>Недостаток: сортировка неустойчива.</li>\n</ul>\n\n<h3>Хорошие и плохие входные данные</h3>\n<ul>\n  <li>Хорошие данные: почти отсортированные массивы и массивы, где элементы недалеко от своих мест после первых проходов.</li>\n  <li>Плохие данные: данные, для которых выбранная последовательность шагов плохо устраняет беспорядок.</li>\n</ul>\n"}, {"id": "insertion", "title": "Сортировка вставками", "ticket": "Встречалась в слитом билете 11", "html": "\n<h2>Сортировка вставками</h2>\n\n<p>Сортировка вставками строит отсортированную часть массива слева направо. На каждом шаге очередной элемент берётся из неотсортированной части и вставляется на своё место в уже отсортированный префикс.</p>\n\n<h3>Идея алгоритма</h3>\n<p>После обработки первых <code>i</code> элементов левая часть массива <code>a[0..i-1]</code> считается отсортированной. Элемент <code>a[i]</code> сохраняется во временную переменную, затем элементы отсортированной части, которые больше него, сдвигаются вправо. В освободившееся место вставляется сохранённый элемент.</p>\n<p>В простой вставке место ищется последовательным просмотром назад. В двоичной вставке место можно искать двоичным поиском, но сами сдвиги элементов всё равно остаются.</p>\n\n<h3>Алгоритм простой вставки</h3>\n<ol>\n  <li>Первый элемент считается отсортированным.</li>\n  <li>Для каждого следующего элемента сохранить его значение в <code>x</code>.</li>\n  <li>Просмотреть отсортированную часть справа налево.</li>\n  <li>Пока элементы больше <code>x</code>, сдвигать их на одну позицию вправо.</li>\n  <li>Вставить <code>x</code> в найденное место.</li>\n</ol>\n\n<pre class=\"pseudo\">insertion_sort(a, n):\n    for i = 1 .. n-1:\n        x = a[i]\n        j = i - 1\n        while j >= 0 and a[j] > x:\n            a[j+1] = a[j]\n            j = j - 1\n        a[j+1] = x</pre>\n\n<h3>Пример сортировки массива</h3>\n<p>Исходный массив:</p>\n<pre class=\"pseudo\">7 3 4 5 8 2 1 6</pre>\n<table class=\"theory-table\">\n<tr><th>Шаг</th><th>Вставляемый элемент</th><th>Состояние массива</th></tr>\n<tr><td>1</td><td><code>3</code> вставляется перед <code>7</code></td><td><code>3 7 | 4 5 8 2 1 6</code></td></tr>\n<tr><td>2</td><td><code>4</code> вставляется между <code>3</code> и <code>7</code></td><td><code>3 4 7 | 5 8 2 1 6</code></td></tr>\n<tr><td>3</td><td><code>5</code> вставляется перед <code>7</code></td><td><code>3 4 5 7 | 8 2 1 6</code></td></tr>\n<tr><td>4</td><td><code>8</code> уже на месте</td><td><code>3 4 5 7 8 | 2 1 6</code></td></tr>\n<tr><td>5</td><td><code>2</code> сдвигает <code>3 4 5 7 8</code></td><td><code>2 3 4 5 7 8 | 1 6</code></td></tr>\n<tr><td>6</td><td><code>1</code> вставляется в начало</td><td><code>1 2 3 4 5 7 8 | 6</code></td></tr>\n<tr><td>7</td><td><code>6</code> вставляется между <code>5</code> и <code>7</code></td><td><code>1 2 3 4 5 6 7 8</code></td></tr>\n</table>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать массив, вертикальной чертой отделить отсортированную часть слева от неотсортированной справа. Затем показать, как выбранный элемент временно вынимается, большие элементы сдвигаются вправо, а элемент вставляется в освободившуюся позицию.</div>\n\n<h3>Сложность и свойства</h3>\n<table class=\"theory-table\">\n<tr><th>Случай / свойство</th><th>Оценка</th><th>Пояснение</th></tr>\n<tr><td>Лучший случай</td><td><code>O(n)</code></td><td>Массив уже отсортирован, сдвигов нет.</td></tr>\n<tr><td>Средний случай</td><td><code>O(n²)</code></td><td>В среднем приходится просматривать и сдвигать часть отсортированного префикса.</td></tr>\n<tr><td>Худший случай</td><td><code>O(n²)</code></td><td>Массив отсортирован в обратном порядке, каждый элемент вставляется в начало.</td></tr>\n<tr><td>Дополнительная память</td><td><code>O(1)</code></td><td>Нужна только временная переменная.</td></tr>\n<tr><td>Устойчивость</td><td>Устойчива</td><td>Если сдвигать только элементы строго больше вставляемого.</td></tr>\n</table>\n\n<h3>Двоичная вставка</h3>\n<p>В двоичной вставке позиция вставки в отсортированной части находится двоичным поиском. Это уменьшает число сравнений, но не уменьшает порядок числа пересылок, потому что элементы всё равно нужно сдвигать в массиве.</p>\n<table class=\"theory-table\">\n<tr><th>Вариант</th><th>Сравнения</th><th>Пересылки</th></tr>\n<tr><td>Простая вставка</td><td>До <code>O(n²)</code></td><td>До <code>O(n²)</code></td></tr>\n<tr><td>Двоичная вставка</td><td>Около <code>O(n log n)</code></td><td>До <code>O(n²)</code></td></tr>\n</table>\n\n<h3>Достоинства и недостатки</h3>\n<ul>\n  <li>Достоинство: простая реализация.</li>\n  <li>Достоинство: устойчива при правильном сравнении.</li>\n  <li>Достоинство: хорошо работает на малых и почти отсортированных массивах.</li>\n  <li>Недостаток: на больших случайных массивах работает медленно из-за <code>O(n²)</code>.</li>\n  <li>Недостаток: при обратном порядке нужно много сдвигов.</li>\n</ul>\n\n<h3>Хорошие и плохие входные данные</h3>\n<ul>\n  <li>Лучший вход: уже отсортированный массив.</li>\n  <li>Хороший вход: почти отсортированный массив.</li>\n  <li>Худший вход: массив в обратном порядке.</li>\n</ul>\n"}, {"id": "selection-count", "title": "Линейный выбор с подсчётом", "ticket": "Не встречалась в слитых билетах", "html": "\n<h2>Линейный выбор с подсчётом</h2>\n\n<p>Линейный выбор с подсчётом — это сортировка, в которой для каждого элемента определяется его окончательное место через число элементов, меньших данного. Для этого используется вспомогательная таблица счётчиков.</p>\n\n<h3>Идея алгоритма</h3>\n<p>Каждому элементу <code>a[i]</code> ставится в соответствие счётчик <code>c[i]</code>. Значение <code>c[i]</code> показывает, сколько элементов массива должно стоять перед <code>a[i]</code>, то есть фактически является итоговым индексом элемента в отсортированном массиве.</p>\n<p>Для каждой пары элементов выполняется сравнение. Если <code>a[i] &gt; a[j]</code>, значит <code>a[i]</code> должен стоять правее <code>a[j]</code>, поэтому увеличивается <code>c[i]</code>. Если <code>a[i] &lt; a[j]</code>, увеличивается <code>c[j]</code>. Для равных элементов нужно заранее выбрать правило, чтобы не получить одинаковые индексы. Например, для устойчивого варианта при <code>i &lt; j</code> более поздний равный элемент ставится правее.</p>\n\n<h3>Алгоритм</h3>\n<ol>\n  <li>Создать массив счётчиков <code>c[0..n-1]</code> и заполнить нулями.</li>\n  <li>Для всех пар <code>i &lt; j</code> сравнить элементы <code>a[i]</code> и <code>a[j]</code>.</li>\n  <li>Увеличить счётчик того элемента, который должен стоять правее.</li>\n  <li>После всех сравнений создать вспомогательный массив <code>b</code>.</li>\n  <li>Разместить каждый элемент <code>a[i]</code> в позицию <code>b[c[i]]</code>.</li>\n  <li>Скопировать <code>b</code> обратно в <code>a</code>, если требуется результат в исходном массиве.</li>\n</ol>\n\n<pre class=\"pseudo\">selection_count_sort(a, n):\n    for i = 0 .. n-1:\n        c[i] = 0\n\n    for i = 0 .. n-2:\n        for j = i+1 .. n-1:\n            if a[i] > a[j]:\n                c[i] = c[i] + 1\n            else:\n                c[j] = c[j] + 1\n\n    for i = 0 .. n-1:\n        b[c[i]] = a[i]\n\n    copy b to a</pre>\n\n<h3>Пример сортировки массива</h3>\n<p>Исходный массив:</p>\n<pre class=\"pseudo\">7 3 4 5 8 2 1 6</pre>\n<p>Счётчик элемента равен количеству элементов, которые меньше него.</p>\n<table class=\"theory-table\">\n<tr><th>Элемент</th><th>Сколько элементов меньше</th><th>Итоговая позиция</th></tr>\n<tr><td><code>7</code></td><td><code>6</code>: меньше <code>1,2,3,4,5,6</code></td><td><code>6</code></td></tr>\n<tr><td><code>3</code></td><td><code>2</code>: меньше <code>1,2</code></td><td><code>2</code></td></tr>\n<tr><td><code>4</code></td><td><code>3</code>: меньше <code>1,2,3</code></td><td><code>3</code></td></tr>\n<tr><td><code>5</code></td><td><code>4</code></td><td><code>4</code></td></tr>\n<tr><td><code>8</code></td><td><code>7</code></td><td><code>7</code></td></tr>\n<tr><td><code>2</code></td><td><code>1</code></td><td><code>1</code></td></tr>\n<tr><td><code>1</code></td><td><code>0</code></td><td><code>0</code></td></tr>\n<tr><td><code>6</code></td><td><code>5</code></td><td><code>5</code></td></tr>\n</table>\n<p>После всех сравнений таблица счётчиков:</p>\n<pre class=\"pseudo\">6 2 3 4 7 1 0 5</pre>\n<p>Расставляем элементы по этим индексам:</p>\n<pre class=\"pseudo\">b[6] = 7\nb[2] = 3\nb[3] = 4\nb[4] = 5\nb[7] = 8\nb[1] = 2\nb[0] = 1\nb[5] = 6\n\nИтог: 1 2 3 4 5 6 7 8</pre>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать исходный массив и под ним массив счётчиков той же длины. Затем показать, что при сравнении пары элементов увеличивается счётчик большего элемента. После этого нужно нарисовать второй массив, куда элементы ставятся по индексам из счётчиков.</div>\n\n<h3>Сложность и свойства</h3>\n<table class=\"theory-table\">\n<tr><th>Свойство</th><th>Значение</th><th>Пояснение</th></tr>\n<tr><td>Число сравнений</td><td><code>O(n²)</code></td><td>Сравниваются все пары элементов.</td></tr>\n<tr><td>Число размещений</td><td><code>O(n)</code></td><td>После подсчёта каждый элемент один раз ставится в итоговую позицию.</td></tr>\n<tr><td>Дополнительная память</td><td><code>O(n)</code></td><td>Нужны массив счётчиков и обычно итоговый массив.</td></tr>\n<tr><td>Устойчивость</td><td>Зависит от правила равенства</td><td>Можно сделать устойчивой, если для равных элементов сохранять исходный порядок.</td></tr>\n<tr><td>Тип</td><td>Сортировка выбором с подсчётом позиций</td><td>Не то же самое, что классическая сортировка подсчётом по диапазону ключей.</td></tr>\n</table>\n\n<h3>Достоинства и недостатки</h3>\n<ul>\n  <li>Достоинство: после подсчёта каждый элемент сразу ставится на окончательное место.</li>\n  <li>Достоинство: алгоритм легко объясняется через итоговые индексы.</li>\n  <li>Недостаток: нужно <code>O(n²)</code> сравнений независимо от начального порядка.</li>\n  <li>Недостаток: требуется дополнительная память.</li>\n  <li>Недостаток: нужно аккуратно обрабатывать равные ключи, иначе возможны одинаковые счётчики.</li>\n</ul>\n\n<h3>Хорошие и плохие входные данные</h3>\n<ul>\n  <li>Порядок входных данных почти не влияет на число сравнений: всё равно сравниваются пары.</li>\n  <li>Алгоритм удобен, когда нужно показать сам принцип вычисления итогового места элемента.</li>\n  <li>Для больших массивов обычно невыгоден из-за квадратичного числа сравнений.</li>\n</ul>\n"}, {"id": "heap-sift", "title": "Сортировка просеиванием", "ticket": "Встречалась в слитом билете 5", "html": "\n<h2>Сортировка просеиванием</h2>\n\n<p>Сортировка просеиванием — это пирамидальная сортировка. Массив рассматривается как двоичная куча. Сначала строится максимальная куча, затем максимальный элемент из корня многократно переносится в конец массива, а оставшаяся куча восстанавливается просеиванием вниз.</p>\n\n<h3>Идея алгоритма</h3>\n<p>Двоичная куча хранится в массиве. При нумерации с нуля для элемента с индексом <code>i</code> левый потомок имеет индекс <code>2i + 1</code>, правый — <code>2i + 2</code>. В максимальной куче каждый родитель не меньше своих потомков, поэтому максимальный элемент находится в корне, то есть в <code>a[0]</code>.</p>\n<p>После обмена корня с последним элементом максимум оказывается в отсортированной части справа. Размер кучи уменьшается на 1. Новый корень может нарушать свойство кучи, поэтому он просеивается вниз.</p>\n\n<h3>Просеивание вниз</h3>\n<ol>\n  <li>Рассматривается вершина, в которой могло нарушиться свойство кучи.</li>\n  <li>Из её потомков выбирается больший.</li>\n  <li>Если больший потомок больше родителя, они меняются местами.</li>\n  <li>Просеивание продолжается в той ветви, куда переместился элемент.</li>\n  <li>Если потомков нет или родитель не меньше потомков, просеивание заканчивается.</li>\n</ol>\n\n<pre class=\"pseudo\">sift_down(a, root, heap_size):\n    while 2*root + 1 < heap_size:\n        child = 2*root + 1\n        if child + 1 < heap_size and a[child+1] > a[child]:\n            child = child + 1\n\n        if a[root] >= a[child]:\n            break\n\n        swap(a[root], a[child])\n        root = child</pre>\n\n<h3>Алгоритм сортировки</h3>\n<ol>\n  <li>Построить max-heap из всего массива. Для этого просеять вниз все внутренние вершины снизу вверх.</li>\n  <li>Поменять корень кучи с последним элементом текущей кучи.</li>\n  <li>Уменьшить размер кучи на 1.</li>\n  <li>Просеять новый корень вниз.</li>\n  <li>Повторять, пока в куче не останется один элемент.</li>\n</ol>\n\n<pre class=\"pseudo\">heap_sort(a, n):\n    for i = parent(n-1) down to 0:\n        sift_down(a, i, n)\n\n    heap_size = n\n    while heap_size > 1:\n        swap(a[0], a[heap_size-1])\n        heap_size = heap_size - 1\n        sift_down(a, 0, heap_size)</pre>\n\n<h3>Пример сортировки массива</h3>\n<p>Исходный массив:</p>\n<pre class=\"pseudo\">7 3 4 5 8 2 1 6</pre>\n<table class=\"theory-table\">\n<tr><th>Этап</th><th>Действие</th><th>Состояние</th></tr>\n<tr><td>Построение кучи</td><td>Максимум поднимается в корень</td><td><code>8 7 4 6 3 2 1 5</code></td></tr>\n<tr><td>1-е извлечение</td><td><code>8</code> меняется с последним элементом, затем корень просеивается</td><td><code>7 6 4 5 3 2 1 | 8</code></td></tr>\n<tr><td>2-е извлечение</td><td>В конец ставится <code>7</code></td><td><code>6 5 4 1 3 2 | 7 8</code></td></tr>\n<tr><td>3-е извлечение</td><td>В конец ставится <code>6</code></td><td><code>5 3 4 1 2 | 6 7 8</code></td></tr>\n<tr><td>4-е извлечение</td><td>В конец ставится <code>5</code></td><td><code>4 3 2 1 | 5 6 7 8</code></td></tr>\n<tr><td>Итог</td><td>Продолжаем до размера кучи 1</td><td><code>1 2 3 4 5 6 7 8</code></td></tr>\n</table>\n<p>Вертикальная черта отделяет кучу слева от уже отсортированной части справа.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать массив как двоичное дерево. Подписать формулы индексов потомков: <code>left = 2i + 1</code>, <code>right = 2i + 2</code>. Затем показать просеивание вниз: элемент из корня сравнивается с большим сыном и меняется с ним, пока свойство кучи не восстановится.</div>\n\n<h3>Сложность и свойства</h3>\n<table class=\"theory-table\">\n<tr><th>Свойство</th><th>Значение</th><th>Пояснение</th></tr>\n<tr><td>Построение кучи</td><td><code>O(n)</code></td><td>Если строить кучу просеиванием внутренних вершин снизу вверх.</td></tr>\n<tr><td>Одно извлечение максимума</td><td><code>O(log n)</code></td><td>Высота кучи логарифмическая.</td></tr>\n<tr><td>Общая сложность</td><td><code>O(n log n)</code></td><td>Гарантированно для любого входа.</td></tr>\n<tr><td>Дополнительная память</td><td><code>O(1)</code></td><td>Куча хранится прямо в исходном массиве.</td></tr>\n<tr><td>Устойчивость</td><td>Неустойчива</td><td>Обмены через корень могут менять порядок равных элементов.</td></tr>\n</table>\n\n<h3>Достоинства и недостатки</h3>\n<ul>\n  <li>Достоинство: гарантированная сложность <code>O(n log n)</code>.</li>\n  <li>Достоинство: не нужен дополнительный массив.</li>\n  <li>Достоинство: нет худшего квадратичного случая, как у быстрой сортировки.</li>\n  <li>Недостаток: неустойчива.</li>\n  <li>Недостаток: на практике часто уступает быстрой сортировке из-за менее удобных обращений к памяти.</li>\n</ul>\n\n<h3>Хорошие и плохие входные данные</h3>\n<ul>\n  <li>Порядок входных данных не меняет асимптотический порядок: всё равно <code>O(n log n)</code>.</li>\n  <li>Алгоритм хорош, когда нужна гарантированная оценка и нельзя выделять дополнительную память.</li>\n  <li>Для задач, где важна устойчивость, сортировка просеиванием не подходит без модификаций.</li>\n</ul>\n"}], theory2: [{"id": "binary-tree", "title": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "ticket": "Встречалось в слитых билетах 5 и 11", "html": "\n<h2>Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева</h2>\n\n<p>Двоичное дерево — это дерево, у каждой вершины которого не более двух поддеревьев: левого и правого. Если в дереве дополнительно выполняется правило порядка, то получается двоичное дерево поиска: все ключи в левом поддереве меньше ключа в вершине, а все ключи в правом поддереве больше ключа в вершине.</p>\n\n<h3>Основные определения</h3>\n<ul>\n  <li>Корень — вершина, из которой начинается дерево.</li>\n  <li>Лист — вершина, не имеющая потомков.</li>\n  <li>Глубина вершины — длина пути от корня до этой вершины.</li>\n  <li>Высота дерева — максимальная глубина его вершин.</li>\n  <li>Степень вершины — число её потомков.</li>\n  <li>Ширина уровня — число вершин на данной глубине.</li>\n  <li>Ширина дерева — максимум ширин по всем уровням.</li>\n</ul>\n\n<h3>Способы представления</h3>\n<p>Двоичное дерево можно хранить динамически, когда каждая вершина содержит значение и два указателя: на левое и правое поддерево.</p>\n<pre class=\"pseudo\">node:\n    key\n    left\n    right</pre>\n<p>Такое представление удобно для вставки, удаления и рекурсивной обработки. Недостаток — требуется динамическая память и указатели.</p>\n<p>Также дерево можно хранить в массиве. Для полного или почти полного дерева при нумерации с нуля потомки вершины <code>i</code> имеют индексы:</p>\n<pre class=\"pseudo\">left(i)  = 2*i + 1\nright(i) = 2*i + 2\nparent(i)= (i - 1) / 2</pre>\n<p>Массивное представление особенно удобно для кучи и сортировки просеиванием. Для произвольного разреженного дерева оно может быть неэкономным, потому что приходится оставлять пустые места.</p>\n\n<h3>Основные операции в дереве поиска</h3>\n<p>Поиск начинается с корня. Если искомый ключ равен ключу текущей вершины, элемент найден. Если искомый ключ меньше, переходят в левое поддерево; если больше — в правое. Если дошли до пустой ссылки, элемента в дереве нет.</p>\n<pre class=\"pseudo\">search(root, key):\n    while root != NULL:\n        if key == root.key:\n            return root\n        if key < root.key:\n            root = root.left\n        else:\n            root = root.right\n    return NULL</pre>\n<p>Вставка выполняется аналогично поиску. Нужно найти пустое место, куда должен попасть новый ключ, и создать там новую вершину.</p>\n<p>Удаление вершины разбирается по степени удаляемой вершины:</p>\n<ol>\n  <li>Если у вершины нет потомков, она просто удаляется.</li>\n  <li>Если у вершины один потомок, вместо вершины подвешивается её единственный потомок.</li>\n  <li>Если у вершины два потомка, значение удаляемой вершины заменяется либо максимальным элементом левого поддерева, либо минимальным элементом правого поддерева. После этого удаляется уже найденная замещающая вершина, у которой не может быть двух потомков.</li>\n</ol>\n\n<h3>Двоичное B-дерево</h3>\n<p>Двоичное B-дерево — это двоичное дерево, в котором нет ни одной вершины степени 1. Иначе говоря, каждая вершина имеет либо 0 потомков, либо 2 потомка. Это не то же самое, что страничное B-дерево.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать небольшое двоичное дерево, отметить корень, листья, глубины уровней, высоту и ширину. Для дерева поиска нужно подписать правило: слева ключи меньше, справа ключи больше. Для удаления нужно нарисовать три случая: лист, один потомок, два потомка с заменой на максимум слева или минимум справа.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Операция</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Поиск</td><td><code>O(h)</code></td><td><code>h</code> — высота дерева.</td></tr>\n<tr><td>Вставка</td><td><code>O(h)</code></td><td>Сначала ищется место вставки.</td></tr>\n<tr><td>Удаление</td><td><code>O(h)</code></td><td>Нужно найти вершину и, возможно, замещающий элемент.</td></tr>\n<tr><td>Сбалансированное дерево</td><td><code>O(log n)</code></td><td>Высота логарифмическая.</td></tr>\n<tr><td>Вырожденное дерево</td><td><code>O(n)</code></td><td>Дерево превращается в список.</td></tr>\n</table>\n"}, {"id": "traversals-expressions", "title": "Обходы двоичного дерева и синтаксический анализ выражений", "ticket": "Встречалось в слитых билетах 3 и 7", "html": "\n<h2>Обходы двоичного дерева и синтаксический анализ выражений</h2>\n\n<p>Обход дерева — это способ систематически посетить все вершины дерева. Для двоичного дерева обычно используются три основных обхода: прямой, симметричный и обратный.</p>\n\n<h3>Основные обходы</h3>\n<ul>\n  <li>Прямой обход: корень, левое поддерево, правое поддерево. Обозначение: КЛП.</li>\n  <li>Симметричный обход: левое поддерево, корень, правое поддерево. Обозначение: ЛКП.</li>\n  <li>Обратный обход: левое поддерево, правое поддерево, корень. Обозначение: ЛПК.</li>\n</ul>\n<pre class=\"pseudo\">preorder(t):          inorder(t):           postorder(t):\n    if t != NULL:         if t != NULL:         if t != NULL:\n        print(t)              inorder(t.left)       postorder(t.left)\n        preorder(t.left)      print(t)              postorder(t.right)\n        preorder(t.right)     inorder(t.right)      print(t)</pre>\n\n<h3>Связь с выражениями</h3>\n<p>Арифметическое выражение можно представить двоичным деревом. Внутренние вершины содержат операции, а листья содержат операнды. Например, выражение <code>1 * (3 + 4)</code> представляется деревом, где корень — операция умножения, левый сын — <code>1</code>, правый сын — операция сложения.</p>\n<p>Для дерева выражения обходы соответствуют разным формам записи:</p>\n<ul>\n  <li>КЛП даёт префиксную запись: операция перед операндами.</li>\n  <li>ЛКП даёт инфиксную запись: операция между операндами. Для точного восстановления выражения нужны скобки.</li>\n  <li>ЛПК даёт постфиксную запись: операция после операндов.</li>\n</ul>\n\n<h3>Преобразование инфиксной записи в постфиксную</h3>\n<p>Для преобразования инфиксной записи в постфиксную используется стек операций. Операнды сразу записываются в выходную строку. Операции временно помещаются в стек с учётом приоритетов.</p>\n<ol>\n  <li>Операнд записывается в выходную строку.</li>\n  <li>Открывающая скобка кладётся в стек.</li>\n  <li>Закрывающая скобка выталкивает из стека все операции до открывающей скобки.</li>\n  <li>Операция кладётся в стек, но перед этим из стека выталкиваются операции с большим или равным приоритетом.</li>\n  <li>После конца строки все оставшиеся операции выталкиваются в выходную строку.</li>\n</ol>\n\n<h3>Вычисление постфиксной записи</h3>\n<p>Постфиксная запись вычисляется стеком значений. Если встречается операнд, он кладётся в стек. Если встречается операция, из стека снимаются два верхних операнда, выполняется операция, результат кладётся обратно в стек.</p>\n<pre class=\"pseudo\">evaluate_postfix(tokens):\n    stack = empty\n    for token in tokens:\n        if token is operand:\n            push(stack, token)\n        else:\n            b = pop(stack)\n            a = pop(stack)\n            push(stack, a token b)\n    return pop(stack)</pre>\n\n<h3>Вычисление выражения по дереву</h3>\n<p>Значение выражения по дереву удобно считать рекурсивно. Если вершина является листом, возвращается значение операнда. Если вершина содержит операцию, сначала вычисляются левое и правое поддеревья, затем к полученным значениям применяется операция из корня.</p>\n<pre class=\"pseudo\">eval(t):\n    if t is leaf:\n        return t.value\n    left_value = eval(t.left)\n    right_value = eval(t.right)\n    return apply(t.operation, left_value, right_value)</pre>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать дерево выражения. На нём показать три обхода: КЛП, ЛКП и ЛПК. Для инфиксной записи в постфиксную нужно нарисовать две области: входная строка, стек операций и выходная строка.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Действие</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Любой обход дерева</td><td><code>O(n)</code></td><td>Каждая вершина посещается один раз.</td></tr>\n<tr><td>Преобразование инфиксной записи в постфиксную</td><td><code>O(m)</code></td><td><code>m</code> — число символов или токенов.</td></tr>\n<tr><td>Вычисление постфиксной записи</td><td><code>O(m)</code></td><td>Каждый токен обрабатывается один раз.</td></tr>\n<tr><td>Вычисление выражения по дереву</td><td><code>O(n)</code></td><td>Каждый узел дерева вычисляется один раз.</td></tr>\n</table>\n"}, {"id": "avl-tree", "title": "АVL деревья. Балансировка. Вращения.", "ticket": "Встречалось в слитом билете 11", "html": "\n<h2>АVL деревья. Балансировка. Вращения.</h2>\n\n<p>AVL-дерево — это двоичное дерево поиска, в котором для каждой вершины высоты левого и правого поддеревьев отличаются не более чем на 1. Это условие поддерживает высоту дерева логарифмической, поэтому поиск, вставка и удаление выполняются за <code>O(log n)</code>.</p>\n\n<h3>Баланс вершины</h3>\n<p>Для вершины можно определить баланс-фактор:</p>\n<pre class=\"pseudo\">balance(v) = height(v.right) - height(v.left)</pre>\n<p>В корректном AVL-дереве для каждой вершины баланс равен <code>-1</code>, <code>0</code> или <code>1</code>. Если после вставки или удаления баланс становится <code>2</code> или <code>-2</code>, требуется вращение.</p>\n\n<h3>Вращения</h3>\n<p>В AVL-дереве используются четыре типа балансировки.</p>\n<table class=\"theory-table\">\n<tr><th>Случай</th><th>Когда возникает</th><th>Что делается</th></tr>\n<tr><td>Малое левое вращение</td><td>Правое поддерево стало слишком высоким, и правый сын наклонён вправо или сбалансирован</td><td>Левый поворот вокруг несбалансированной вершины.</td></tr>\n<tr><td>Малое правое вращение</td><td>Левое поддерево стало слишком высоким, и левый сын наклонён влево или сбалансирован</td><td>Правый поворот вокруг несбалансированной вершины.</td></tr>\n<tr><td>Большое левое вращение</td><td>Правое поддерево слишком высокое, но правый сын наклонён влево</td><td>Сначала правый поворот правого сына, потом левый поворот вершины.</td></tr>\n<tr><td>Большое правое вращение</td><td>Левое поддерево слишком высокое, но левый сын наклонён вправо</td><td>Сначала левый поворот левого сына, потом правый поворот вершины.</td></tr>\n</table>\n\n<h3>Вставка</h3>\n<ol>\n  <li>Сначала новый ключ вставляется как в обычное двоичное дерево поиска.</li>\n  <li>После вставки на обратном пути к корню пересчитываются высоты вершин.</li>\n  <li>Для каждой вершины проверяется баланс.</li>\n  <li>Если баланс нарушен, выполняется подходящее малое или большое вращение.</li>\n  <li>После вращения дерево снова удовлетворяет правилу AVL.</li>\n</ol>\n\n<h3>Удаление</h3>\n<p>Удаление начинается как в обычном двоичном дереве поиска. Если удаляемая вершина имеет два поддерева, она заменяется соседним по порядку ключом: максимумом левого поддерева или минимумом правого. После физического удаления вершины пересчитываются высоты и выполняются вращения на пути к корню.</p>\n<p>При удалении балансировка может потребоваться не один раз, потому что высота поддерева уменьшается и это может повлиять на несколько предков.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать четыре схемы: малое левое, малое правое, большое левое и большое правое вращение. В каждой схеме важно показать, какие поддеревья сохраняют свой порядок, чтобы было видно, что свойство двоичного дерева поиска не нарушается.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Операция</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Поиск</td><td><code>O(log n)</code></td><td>Высота AVL-дерева логарифмическая.</td></tr>\n<tr><td>Вставка</td><td><code>O(log n)</code></td><td>Поиск места плюс балансировка на пути к корню.</td></tr>\n<tr><td>Удаление</td><td><code>O(log n)</code></td><td>Удаление как в дереве поиска плюс возможные вращения.</td></tr>\n<tr><td>Одно вращение</td><td><code>O(1)</code></td><td>Меняется конечное число ссылок.</td></tr>\n</table>\n"}, {"id": "rb-tree", "title": "Черно- красные деревья. Добавление и удаление вершин. Балансировка, вращения", "ticket": "Встречалось в слитом билете 3", "html": "\n<h2>Черно- красные деревья. Добавление и удаление вершин. Балансировка, вращения</h2>\n\n<p>Красно-чёрное дерево — это двоичное дерево поиска с дополнительным цветом у каждой вершины. Цвета и правила дерева ограничивают его высоту. В результате основные операции выполняются за <code>O(log n)</code>.</p>\n\n<h3>Свойства красно-чёрного дерева</h3>\n<ol>\n  <li>Каждая вершина либо красная, либо чёрная.</li>\n  <li>Корень считается чёрным.</li>\n  <li>Все пустые листья <code>NULL</code> считаются чёрными.</li>\n  <li>У красной вершины оба потомка чёрные. Поэтому две красные вершины подряд по пути невозможны.</li>\n  <li>Любой путь от данной вершины до листа содержит одинаковое число чёрных вершин.</li>\n</ol>\n<p>Из этих свойств следует, что самый длинный путь от корня к листу не более чем в два раза длиннее самого короткого. Поэтому высота дерева имеет порядок <code>O(log n)</code>.</p>\n\n<h3>Вставка</h3>\n<p>Новый ключ сначала вставляется как в обычное двоичное дерево поиска. Новая вершина красится в красный цвет. Это не увеличивает число чёрных вершин на путях, но может нарушить правило, что у красной вершины дети должны быть чёрными.</p>\n<p>После вставки рассматриваются текущая вершина <code>N</code>, её родитель <code>P</code>, дед <code>G</code> и дядя <code>U</code>.</p>\n<ol>\n  <li>Если <code>N</code> стал корнем, он перекрашивается в чёрный.</li>\n  <li>Если родитель <code>P</code> чёрный, нарушений нет.</li>\n  <li>Если родитель и дядя красные, родитель и дядя перекрашиваются в чёрный, дед — в красный, затем проверка продолжается от деда.</li>\n  <li>Если родитель красный, дядя чёрный, а вершина образует «ломаную» конфигурацию, сначала выполняется вращение, переводящее случай в линейный.</li>\n  <li>Если родитель красный, дядя чёрный, а вершины стоят в одну сторону, выполняется вращение вокруг деда и перекраска родителя и деда.</li>\n</ol>\n<p>Симметричные случаи для правого и левого поддерева записываются аналогично, отдельно их полностью расписывать не нужно.</p>\n\n<h3>Удаление</h3>\n<p>Если удаляемая вершина имеет два непустых потомка, её значение заменяют на максимум левого поддерева или минимум правого поддерева. Тогда задача сводится к удалению вершины, у которой не более одного непустого потомка.</p>\n<ul>\n  <li>Если удаляется красная вершина, свойства дерева не нарушаются.</li>\n  <li>Если удаляется чёрная вершина с красным ребёнком, ребёнок ставится на её место и перекрашивается в чёрный.</li>\n  <li>Сложный случай возникает при удалении чёрной вершины с чёрным ребёнком или пустым чёрным листом. Тогда появляется «дефицит чёрного», который устраняется через брата, его детей, перекраски и вращения.</li>\n</ul>\n<p>В сложных случаях рассматривают вершину <code>N</code>, её родителя <code>P</code>, брата <code>S</code> и детей брата. Если брат красный, выполняется вращение и перекраска, чтобы получить чёрного брата. Если брат и его дети чёрные, брат может быть перекрашен в красный, а проблема поднимается выше. Если у брата есть красный дальний или ближний ребёнок, выполняются вращения и перекраски, после чего баланс восстанавливается.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать свойства красно-чёрного дерева: красная вершина с двумя чёрными детьми и равное число чёрных вершин на путях. Для вставки нужно нарисовать случаи: красный родитель и красный дядя; красный родитель, чёрный дядя и вращение. Для удаления достаточно нарисовать один набор случаев, например для левого ребёнка, и подписать, что правые случаи симметричны.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Операция</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Поиск</td><td><code>O(log n)</code></td><td>Высота дерева логарифмическая.</td></tr>\n<tr><td>Вставка</td><td><code>O(log n)</code></td><td>Поиск места плюс конечное число вращений и перекрасок на пути к корню.</td></tr>\n<tr><td>Удаление</td><td><code>O(log n)</code></td><td>Поиск удаляемой вершины и восстановление свойств.</td></tr>\n<tr><td>Вращение</td><td><code>O(1)</code></td><td>Меняется конечное число ссылок.</td></tr>\n</table>\n"}, {"id": "b-tree", "title": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "ticket": "Встречалось в слитых билетах 5 и 7", "html": "\n<h2>В-деревья. Добавление и удаление вершин. Балансировка, вращения.</h2>\n\n<p>В этой карточке под В-деревом понимается страничное B-дерево. B-дерево — это сбалансированное дерево поиска, в котором один узел является страницей и содержит несколько ключей. B-деревья применяются, когда важно уменьшить высоту дерева и число обращений к памяти или внешнему устройству.</p>\n\n<h3>Свойства B-дерева порядка n</h3>\n<ol>\n  <li>Каждая страница содержит не более <code>2n</code> ключей.</li>\n  <li>Каждая страница, кроме корневой, содержит не менее <code>n</code> ключей.</li>\n  <li>Если страница содержит <code>m</code> ключей и не является листом, то она имеет <code>m + 1</code> потомков.</li>\n  <li>Ключи внутри страницы упорядочены.</li>\n  <li>Все листья находятся на одном уровне.</li>\n</ol>\n<p>Благодаря этим свойствам дерево имеет малую высоту, а поиск идёт по страницам сверху вниз.</p>\n\n<h3>Поиск</h3>\n<p>В каждой странице ключ сравнивается с ключами страницы. Если ключ найден, поиск закончен. Если ключ не найден, выбирается промежуток между ключами, в который он должен попасть, и переходят в соответствующего потомка. Если достигнут лист, а ключ не найден, значит ключа в дереве нет.</p>\n\n<h3>Вставка</h3>\n<ol>\n  <li>Сначала находится лист, в который должен быть вставлен новый ключ.</li>\n  <li>Если в странице есть место, ключ вставляется в неё с сохранением порядка.</li>\n  <li>Если страница переполнена, то есть в ней стало <code>2n + 1</code> ключей, страница разбивается на две.</li>\n  <li>Средний ключ поднимается в родительскую страницу.</li>\n  <li>Левые <code>n</code> ключей остаются в одной странице, правые <code>n</code> ключей — в другой.</li>\n  <li>Если родитель тоже переполнился, разбиение продолжается вверх.</li>\n  <li>Если переполнился корень, создаётся новый корень, и высота дерева увеличивается на 1.</li>\n</ol>\n\n<h3>Удаление</h3>\n<p>При удалении нужно сохранить нижнюю границу числа ключей в странице.</p>\n<ol>\n  <li>Если ключ находится в листе и после удаления в странице остаётся достаточно ключей, ключ просто удаляется.</li>\n  <li>Если ключ находится во внутренней странице, он заменяется соседним по порядку ключом: предшественником из левого поддерева или преемником из правого поддерева. Затем удаление переносится в лист.</li>\n  <li>Если после удаления в странице стало меньше <code>n</code> ключей, выполняется балансировка.</li>\n  <li>Если у соседней страницы того же родителя есть лишний ключ, выполняется заимствование через родителя.</li>\n  <li>Если заимствовать нельзя, страница сливается с соседней, а разделяющий ключ из родителя опускается вниз.</li>\n  <li>Если из-за слияния опустел корень, высота дерева уменьшается.</li>\n</ol>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать страницы B-дерева: в одной странице несколько ключей, между ключами указатели на потомков. Для вставки нужно показать переполненную страницу с <code>2n + 1</code> ключами, подъём среднего ключа вверх и разбиение на две страницы. Для удаления нужно показать заимствование ключа у соседа и слияние страниц через ключ родителя.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Операция</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Поиск</td><td><code>O(log n)</code> по числу ключей</td><td>Высота B-дерева логарифмическая.</td></tr>\n<tr><td>Вставка</td><td><code>O(log n)</code></td><td>Разбиения могут подниматься до корня.</td></tr>\n<tr><td>Удаление</td><td><code>O(log n)</code></td><td>Слияния и заимствования идут вдоль одного пути.</td></tr>\n<tr><td>Высота</td><td>Малая</td><td>Узел содержит много ключей, поэтому ветвление большое.</td></tr>\n</table>\n"}, {"id": "graphs-representations", "title": "Графы. Виды графов. Различные представления графов.", "ticket": "Встречалось в слитых билетах 3, 7 и 11", "html": "\n<h2>Графы. Виды графов. Различные представления графов.</h2>\n\n<p>Граф — это структура, состоящая из множества вершин и множества рёбер. Ребро соединяет две вершины. Если направление ребра важно, граф называется ориентированным, или орграфом. Если каждому ребру поставлено в соответствие число, граф называется взвешенным.</p>\n\n<h3>Виды графов</h3>\n<ul>\n  <li>Неориентированный граф: ребро <code>{u, v}</code> можно проходить в обе стороны.</li>\n  <li>Ориентированный граф: дуга <code>(u, v)</code> ведёт из <code>u</code> в <code>v</code>.</li>\n  <li>Взвешенный граф: у ребра есть вес, длина или стоимость.</li>\n  <li>Связный граф: между любыми двумя вершинами есть путь.</li>\n  <li>Ациклический граф: в нём нет циклов.</li>\n  <li>Мультиграф: между двумя вершинами может быть несколько рёбер.</li>\n  <li>Граф с петлями: ребро может идти из вершины в неё же.</li>\n</ul>\n\n<h3>Матрица смежности</h3>\n<p>Матрица смежности — это таблица <code>V × V</code>. В ячейке <code>a[i][j]</code> хранится информация о ребре из <code>i</code> в <code>j</code>. Для невзвешенного графа это обычно 0 или 1, для взвешенного — вес ребра или бесконечность при отсутствии ребра.</p>\n<table class=\"theory-table\">\n<tr><th>Свойство</th><th>Оценка</th></tr>\n<tr><td>Память</td><td><code>O(V²)</code></td></tr>\n<tr><td>Проверка смежности</td><td><code>O(1)</code></td></tr>\n<tr><td>Перебор соседей вершины</td><td><code>O(V)</code></td></tr>\n<tr><td>Перебор всех рёбер</td><td><code>O(V²)</code></td></tr>\n</table>\n\n<h3>Матрица инцидентности</h3>\n<p>Матрица инцидентности имеет строки-вершины и столбцы-рёбра. В столбце ребра отмечается, каким вершинам оно инцидентно. Для ориентированного графа можно ставить <code>-1</code> у начала дуги и <code>+1</code> у конца.</p>\n\n<h3>Список рёбер</h3>\n<p>Список рёбер хранит каждое ребро как запись:</p>\n<pre class=\"pseudo\">edge:\n    from\n    to\n    weight</pre>\n<p>Такое представление удобно, когда алгоритм перебирает рёбра, например в алгоритме Краскала или в задачах, где граф по условию задан списком рёбер.</p>\n\n<h3>Список смежности</h3>\n<p>Для каждой вершины хранится список её соседей. Для взвешенного графа вместе с соседом хранится вес ребра. Память равна <code>O(V + E)</code>, поэтому это представление удобно для разреженных графов.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать один маленький граф и рядом показать три представления: матрицу смежности, список рёбер и списки смежности. Для ориентированного графа стрелками показать направление дуг, для взвешенного подписать веса.</div>\n\n<h3>Выбор представления</h3>\n<ul>\n  <li>Матрица смежности удобна, если нужно часто проверять наличие ребра между двумя вершинами.</li>\n  <li>Списки смежности удобны для разреженных графов и алгоритмов обхода.</li>\n  <li>Список рёбер удобен для алгоритмов, которые сортируют или перебирают все рёбра.</li>\n  <li>Матрица инцидентности используется реже, но явно показывает связь рёбер и вершин.</li>\n</ul>\n"}, {"id": "mst", "title": "Алгоритмы поиска минимального остова графа.", "ticket": "Встречалось в слитом билете 5", "html": "\n<h2>Алгоритмы поиска минимального остова графа.</h2>\n\n<p>Минимальное остовное дерево строится для связного неориентированного взвешенного графа. Остовное дерево содержит все вершины исходного графа, не содержит циклов и имеет <code>V - 1</code> ребро. Минимальное остовное дерево — это остовное дерево с минимальной суммой весов рёбер.</p>\n\n<h3>Алгоритм Прима</h3>\n<p>Алгоритм Прима постепенно выращивает одно дерево. Сначала выбирается произвольная стартовая вершина. Затем на каждом шаге выбирается минимальное по весу ребро, которое соединяет уже построенное дерево с вершиной вне дерева.</p>\n<ol>\n  <li>Выбрать стартовую вершину.</li>\n  <li>Пометить её как включённую в остов.</li>\n  <li>Среди всех рёбер, выходящих из построенного дерева наружу, выбрать ребро минимального веса.</li>\n  <li>Добавить это ребро и новую вершину к дереву.</li>\n  <li>Повторять, пока все вершины не будут включены.</li>\n</ol>\n<pre class=\"pseudo\">Prim(G):\n    tree = empty\n    used[start] = true\n    while tree has less than V-1 edges:\n        choose minimum edge (u, v),\n        where used[u] = true and used[v] = false\n        add edge to tree\n        used[v] = true</pre>\n\n<h3>Алгоритм Краскала</h3>\n<p>Алгоритм Краскала строит остов из рёбер. Все рёбра сортируются по весу. Затем они просматриваются в порядке возрастания веса. Ребро добавляется, если оно не образует цикл с уже выбранными рёбрами.</p>\n<ol>\n  <li>Отсортировать все рёбра по неубыванию веса.</li>\n  <li>Изначально каждая вершина образует отдельную компоненту.</li>\n  <li>Просматривать рёбра по одному.</li>\n  <li>Если концы ребра лежат в разных компонентах, добавить ребро в остов и объединить компоненты.</li>\n  <li>Если концы уже в одной компоненте, ребро пропустить, потому что оно создаёт цикл.</li>\n  <li>Остановиться, когда выбрано <code>V - 1</code> ребро.</li>\n</ol>\n<pre class=\"pseudo\">Kruskal(G):\n    sort edges by weight\n    make_set(v) for every vertex\n    tree = empty\n    for edge (u, v) in sorted edges:\n        if find(u) != find(v):\n            add edge to tree\n            union(u, v)</pre>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать взвешенный неориентированный граф. Для Прима показать растущее множество вершин и минимальное ребро из дерева наружу. Для Краскала показать список рёбер по весу и отметить, какие рёбра добавляются, а какие пропускаются из-за цикла.</div>\n\n<h3>Сравнение</h3>\n<table class=\"theory-table\">\n<tr><th>Алгоритм</th><th>Основная идея</th><th>Когда удобен</th></tr>\n<tr><td>Прима</td><td>Растёт одно дерево</td><td>Удобен с матрицей смежности или очередью с приоритетом.</td></tr>\n<tr><td>Краскала</td><td>Берутся рёбра от меньших к большим</td><td>Удобен при списке рёбер и разреженных графах.</td></tr>\n</table>\n<p>Оба алгоритма используют жадный принцип: на каждом шаге выбирается локально минимальное безопасное ребро, которое не нарушает возможность получить минимальный остов.</p>\n"}, {"id": "dijkstra", "title": "Поиск путей в графе. Алгоритм Дейкстры", "ticket": "Встречалось в слитых билетах 3 и 11", "html": "\n<h2>Поиск путей в графе. Алгоритм Дейкстры</h2>\n\n<p>Алгоритм Дейкстры находит кратчайшие пути от одной стартовой вершины до всех остальных вершин во взвешенном графе. Он работает только при неотрицательных весах рёбер. Граф может быть ориентированным или неориентированным.</p>\n\n<h3>Идея алгоритма</h3>\n<p>Каждой вершине сопоставляется метка <code>d[v]</code> — длина кратчайшего известного пути от стартовой вершины до <code>v</code>. Сначала расстояние до старта равно 0, остальные расстояния равны бесконечности. На каждом шаге выбирается непосещённая вершина с минимальной меткой. Эта метка становится окончательной, после чего через выбранную вершину пытаются улучшить расстояния до её соседей.</p>\n\n<h3>Алгоритм</h3>\n<ol>\n  <li>Для всех вершин положить <code>d[v] = INF</code>, для стартовой вершины <code>d[s] = 0</code>.</li>\n  <li>Все вершины пометить как непосещённые.</li>\n  <li>Выбрать непосещённую вершину <code>u</code> с минимальным <code>d[u]</code>.</li>\n  <li>Если такой вершины нет или её расстояние бесконечно, алгоритм завершается.</li>\n  <li>Для каждого ребра <code>u -> v</code> с весом <code>w</code> выполнить релаксацию: если <code>d[u] + w &lt; d[v]</code>, заменить <code>d[v]</code>.</li>\n  <li>Запомнить предка <code>prev[v] = u</code>, если расстояние улучшилось.</li>\n  <li>Пометить <code>u</code> как посещённую и повторить шаги.</li>\n</ol>\n<pre class=\"pseudo\">Dijkstra(G, s):\n    for v in V:\n        d[v] = INF\n        prev[v] = NULL\n        used[v] = false\n    d[s] = 0\n\n    repeat V times:\n        u = unused vertex with minimum d[u]\n        if u does not exist:\n            break\n        used[u] = true\n        for each edge u -> v with weight w:\n            if d[u] + w < d[v]:\n                d[v] = d[u] + w\n                prev[v] = u</pre>\n\n<h3>Восстановление пути</h3>\n<p>Чтобы восстановить путь до вершины <code>t</code>, нужно идти по массиву предков от <code>t</code> назад к старту:</p>\n<pre class=\"pseudo\">path = empty\nwhile t != NULL:\n    add t to path\n    t = prev[t]\nreverse(path)</pre>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать взвешенный граф, стартовую вершину и таблицу меток. На каждом шаге отметить выбранную вершину с минимальной временной меткой, затем показать релаксацию рёбер и изменение расстояний.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Реализация</th><th>Сложность</th><th>Пояснение</th></tr>\n<tr><td>Матрица смежности</td><td><code>O(V²)</code></td><td>На каждом шаге поиск минимума среди всех вершин и просмотр строки матрицы.</td></tr>\n<tr><td>Списки смежности + куча</td><td><code>O((V + E) log V)</code></td><td>Удобно для разреженных графов.</td></tr>\n<tr><td>Память</td><td><code>O(V + E)</code> или <code>O(V²)</code></td><td>Зависит от представления графа.</td></tr>\n</table>\n<p>Алгоритм нельзя применять к графам с отрицательными рёбрами, потому что выбранная минимальная метка считается окончательной, а отрицательное ребро могло бы улучшить её позже.</p>\n"}, {"id": "floyd-warshall", "title": "Поиск путей в графе, Алгоритм Флойда- Уоршела", "ticket": "Не встречалось в слитых билетах", "html": "\n<h2>Поиск путей в графе, Алгоритм Флойда- Уоршела</h2>\n\n<p>Алгоритм Флойда–Уоршелла находит кратчайшие расстояния между всеми парами вершин во взвешенном графе. Он основан на динамическом программировании. В отличие от Дейкстры, алгоритм может работать с отрицательными рёбрами, но не должен быть отрицательных циклов, влияющих на ответ.</p>\n\n<h3>Идея динамического программирования</h3>\n<p>Пусть вершины пронумерованы от <code>1</code> до <code>n</code>. Будем постепенно разрешать использовать промежуточные вершины. После шага <code>k</code> значение <code>d[i][j]</code> — это длина кратчайшего пути из <code>i</code> в <code>j</code>, который в качестве промежуточных использует только вершины из множества <code>1..k</code>.</p>\n<p>При добавлении вершины <code>k</code> есть два варианта: кратчайший путь из <code>i</code> в <code>j</code> либо не проходит через <code>k</code>, либо проходит через <code>k</code>. Поэтому выполняется переход:</p>\n<pre class=\"pseudo\">d[i][j] = min(d[i][j], d[i][k] + d[k][j])</pre>\n\n<h3>Инициализация</h3>\n<ul>\n  <li><code>d[i][i] = 0</code> для всех вершин.</li>\n  <li>Если есть ребро <code>i -> j</code> веса <code>w</code>, то <code>d[i][j] = w</code>.</li>\n  <li>Если ребра нет, то <code>d[i][j] = INF</code>.</li>\n</ul>\n\n<h3>Алгоритм</h3>\n<pre class=\"pseudo\">FloydWarshall(d, n):\n    for k = 1 .. n:\n        for i = 1 .. n:\n            for j = 1 .. n:\n                if d[i][k] + d[k][j] < d[i][j]:\n                    d[i][j] = d[i][k] + d[k][j]</pre>\n<p>Порядок циклов важен: внешний цикл идёт по промежуточной вершине <code>k</code>. Так сохраняется смысл динамического программирования.</p>\n\n<h3>Восстановление пути</h3>\n<p>Если требуется восстанавливать сами пути, вместе с матрицей расстояний хранят матрицу предков или матрицу следующих вершин. При улучшении <code>d[i][j]</code> через <code>k</code> обновляется информация о том, как идти из <code>i</code> в <code>j</code>.</p>\n\n<h3>Отрицательные циклы</h3>\n<p>После выполнения алгоритма отрицательный цикл можно заметить по диагонали: если для некоторой вершины <code>d[i][i] &lt; 0</code>, то существует отрицательный цикл, достижимый из этой вершины.</p>\n\n<h3>Что нужно нарисовать</h3>\n<div class=\"draw-box\">Здесь нужно нарисовать матрицу расстояний. Показать, что на шаге <code>k</code> ячейка <code>d[i][j]</code> сравнивается с путём <code>i -> k -> j</code>. Можно нарисовать треугольник из трёх вершин <code>i</code>, <code>k</code>, <code>j</code>.</div>\n\n<h3>Сложность</h3>\n<table class=\"theory-table\">\n<tr><th>Свойство</th><th>Оценка</th><th>Пояснение</th></tr>\n<tr><td>Время</td><td><code>O(V³)</code></td><td>Три вложенных цикла по вершинам.</td></tr>\n<tr><td>Память</td><td><code>O(V²)</code></td><td>Хранится матрица расстояний.</td></tr>\n<tr><td>Тип задачи</td><td>Все пары вершин</td><td>В отличие от Дейкстры, которая обычно запускается от одной стартовой вершины.</td></tr>\n</table>\n"}] };
+const practiceBank = [{"id": 1, "text": "Написать функцию вычисления значения арифметического выражения, представленного в виде двоичного дерева. Листья содержат числа, внутренние вершины — операции +, -, *, /.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Дерево выражения", "source": "Слитый билет 3", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 2, "text": "Найти путь минимальной длины в ориентированном графе с положительными весами, заданном списком рёбер, если путь обязан проходить через заданное ребро (u, v).", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Кратчайший путь через ребро", "source": "Слитый билет 3", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 3, "text": "Написать операцию вставки ключа в B-дерево порядка 2. При переполнении страницы выполнить разбиение.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / вставка", "source": "Слитый билет 5", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Очень сложная"}, {"id": 4, "text": "Написать основные операции для бинарного дерева поиска при хранении дерева в массиве целых чисел: создание пустого дерева, добавление, поиск, удаление, печать.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Двоичное дерево в массиве", "source": "Слитый билет 5", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 5, "text": "Написать функцию поиска значения по заданному целому ключу в B-дереве.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / поиск", "source": "Слитый билет 7", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 6, "text": "Написать функцию подсчёта в ориентированном графе количества циклов длины, равной заданному числу k.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Орграф / циклы длины k", "source": "Слитый билет 7", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 7, "text": "Написать функцию удаления из двоичного дерева всех листьев, числовое значение которых отличается от значения родителя более чем на заданное значение d.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / удаление листьев", "source": "Слитый билет 11", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 8, "text": "Найти самый дешёвый путь в ориентированном взвешенном графе, заданном списком рёбер, если путь обязан проходить через заданное ребро (u, v).", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Кратчайший путь через ребро", "source": "Слитый билет 11", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 9, "text": "Написать функцию добавления нового узла в упорядоченное двоичное дерево поиска.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Двоичное дерево / вставка", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Лёгкая"}, {"id": 10, "text": "Написать функцию удаления узла из двоичного дерева поиска с сохранением порядка. Рассмотреть случаи: узел не найден, лист, один потомок, два потомка.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Двоичное дерево / удаление", "source": "Лабораторная 1 + пример задачи", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 11, "text": "Написать функцию освобождения памяти всего двоичного дерева.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Двоичное дерево / память", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Лёгкая"}, {"id": 12, "text": "Написать функцию текстовой визуализации дерева: каждое значение выводится на отдельной строке с отступом, пропорциональным глубине узла.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / печать", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 13, "text": "Написать функцию вычисления высоты двоичного дерева.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / высота", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 14, "text": "Написать функцию вычисления ширины двоичного дерева.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / ширина", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 15, "text": "Написать функцию подсчёта количества листьев двоичного дерева.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / листья", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 16, "text": "Написать функцию подсчёта количества нетерминальных вершин двоичного дерева.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / нетерминальные вершины", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 17, "text": "Проверить, находятся ли все листья двоичного дерева на одном уровне.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / уровни листьев", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 18, "text": "Проверить, является ли двоичное дерево симметричным, то есть равным своему отражению.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / симметрия", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 19, "text": "Проверить, является ли двоичное дерево AVL-деревом: для каждой вершины высоты левого и правого поддеревьев отличаются не более чем на 1.", "theme": "АVL деревья. Балансировка. Вращения.", "topic": "AVL / проверка баланса", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 20, "text": "Проверить, является ли двоичное дерево Двоичным B-деревом, то есть не содержит ни одного узла степени 1.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Двоичное B-дерево", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 21, "text": "Найти значение листа двоичного дерева, имеющего минимальную глубину.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / минимальная глубина листа", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 22, "text": "Найти значение нетерминальной вершины двоичного дерева, имеющей максимальную глубину.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / максимальная глубина", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 23, "text": "Найти уровень двоичного дерева, на котором находится максимальное число вершин.", "theme": "Двоичное дерево. Способы представления. Основные операции. Высота и ширина дерева", "topic": "Дерево / ширина уровня", "source": "Лабораторная 1", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 24, "text": "Написать функцию построения дерева арифметического выражения по постфиксной записи.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Выражения / дерево из постфикса", "source": "Лабораторная 3 / лекция 5", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 25, "text": "Написать функцию печати арифметического выражения, заданного деревом, в инфиксной форме со скобками.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Выражения / инфиксная печать", "source": "Лабораторная 3", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 26, "text": "Написать функцию печати арифметического выражения, заданного деревом, в постфиксной записи.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Выражения / постфиксная печать", "source": "Лабораторная 3", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 27, "text": "Написать функцию преобразования инфиксной записи арифметического выражения в постфиксную запись.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Инфиксная запись → постфиксная", "source": "Лабораторная 3 / лекция 5", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 28, "text": "Написать функцию вычисления значения выражения по постфиксной записи с использованием стека.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Постфиксная запись / стек", "source": "Лабораторная 3 / слитый билет 7", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 29, "text": "Написать функцию подсчёта количества операций в дереве арифметического выражения.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Дерево выражения / подсчёт операций", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 30, "text": "Написать функцию подсчёта высоты дерева арифметического выражения.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Дерево выражения / высота", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 31, "text": "Написать функцию замены всех подвыражений вида x * 1 и 1 * x на x в дереве выражения.", "theme": "Обходы двоичного дерева и синтаксический анализ выражений", "topic": "Дерево выражения / упрощение", "source": "Лабораторная 3", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Сложная"}, {"id": 32, "text": "Написать функцию поиска ключа в B-дереве порядка 2.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / поиск", "source": "Лабораторная 4 / слитый билет 7", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 33, "text": "Написать функцию вставки ключа в неполную страницу B-дерева порядка 2.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / вставка в страницу", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 34, "text": "Написать функцию разбиения переполненной страницы B-дерева порядка 2.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / разбиение страницы", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 35, "text": "Написать функцию полной вставки ключа в B-дерево порядка 2 с разбиением страницы при необходимости.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / полная вставка", "source": "Лабораторная 4 / слитый билет 5", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Очень сложная"}, {"id": 36, "text": "Написать функцию печати B-дерева по уровням.", "theme": "В-деревья. Добавление и удаление вершин. Балансировка, вращения.", "topic": "B-дерево / печать", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Сложная"}, {"id": 37, "text": "Написать малое левое вращение для AVL-дерева.", "theme": "АVL деревья. Балансировка. Вращения.", "topic": "AVL / левое вращение", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Средняя"}, {"id": 38, "text": "Написать малое правое вращение для AVL-дерева.", "theme": "АVL деревья. Балансировка. Вращения.", "topic": "AVL / правое вращение", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Средняя"}, {"id": 39, "text": "Написать функцию пересчёта высоты узла AVL-дерева и вычисления баланса вершины.", "theme": "АVL деревья. Балансировка. Вращения.", "topic": "AVL / высота и баланс", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 40, "text": "Написать функцию поиска значения по строковому ключу в AVL-дереве или красно-чёрном дереве.", "theme": "АVL деревья. Балансировка. Вращения.", "topic": "Сбалансированные деревья / поиск", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 41, "text": "Написать функцию печати красно-чёрного дерева с маркировкой цвета узла.", "theme": "Черно- красные деревья. Добавление и удаление вершин. Балансировка, вращения", "topic": "Красно-чёрное дерево / печать", "source": "Лабораторная 4", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Средняя"}, {"id": 42, "text": "Написать функцию построения матрицы смежности по списку рёбер ориентированного графа.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Граф / матрица смежности", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 43, "text": "Написать функцию построения списка рёбер по матрице смежности.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Граф / список рёбер", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 44, "text": "Написать функцию проверки смежности двух вершин в графе, заданном матрицей смежности.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Граф / проверка смежности", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 45, "text": "Написать функцию вывода всех вершин, смежных с заданной вершиной, для графа, заданного списком смежности.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Граф / список смежности", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Лёгкая"}, {"id": 46, "text": "Написать алгоритм Дейкстры для ориентированного графа с положительными весами, заданного списком рёбер.", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Дейкстра / список рёбер", "source": "Графовая лабораторная / пример задачи", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 47, "text": "Написать функцию восстановления кратчайшего пути по массиву предков после работы алгоритма Дейкстры.", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Дейкстра / восстановление пути", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Высокий", "difficulty": "Средняя"}, {"id": 48, "text": "Написать функцию поиска кратчайшего пути между двумя вершинами в ориентированном графе с положительными весами, заданном списком рёбер.", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Дейкстра / путь между вершинами", "source": "Пример задачи", "sourceType": "Лабораторные", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 49, "text": "Написать функцию поиска кратчайшего пути, проходящего через заданное ребро (u, v).", "theme": "Поиск путей в графе. Алгоритм Дейкстры", "topic": "Дейкстра / путь через ребро", "source": "Слитый билет 3 / 11", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 50, "text": "Написать алгоритм Флойда–Уоршелла для поиска кратчайших путей между всеми парами вершин.", "theme": "Поиск путей в графе, Алгоритм Флойда- Уоршела", "topic": "Флойд–Уоршелл", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Средняя"}, {"id": 51, "text": "Написать функцию восстановления пути между двумя вершинами после алгоритма Флойда–Уоршелла.", "theme": "Поиск путей в графе, Алгоритм Флойда- Уоршела", "topic": "Флойд–Уоршелл / восстановление пути", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Сложная"}, {"id": 52, "text": "Написать алгоритм Прима для поиска минимального остовного дерева в связном неориентированном взвешенном графе.", "theme": "Алгоритмы поиска минимального остова графа", "topic": "Минимальный остов / Прим", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Сложная"}, {"id": 53, "text": "Написать алгоритм Краскала для поиска минимального остовного дерева по списку рёбер.", "theme": "Алгоритмы поиска минимального остова графа", "topic": "Минимальный остов / Краскал", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Сложная"}, {"id": 54, "text": "Написать функцию топологической сортировки ориентированного ациклического графа.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Орграф / топологическая сортировка", "source": "Графовая лабораторная", "sourceType": "Лабораторные", "priority": "Средний", "difficulty": "Сложная"}, {"id": 55, "text": "Написать функцию проверки, содержит ли ориентированный граф цикл, используя топологическую сортировку.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Орграф / проверка цикла", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Средняя"}, {"id": 56, "text": "Написать функцию подсчёта количества циклов длины k в ориентированном графе.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Орграф / циклы длины k", "source": "Слитый билет 7", "sourceType": "Слитые билеты", "priority": "Высокий", "difficulty": "Сложная"}, {"id": 57, "text": "Написать функцию подсчёта количества путей длины k из вершины s в вершину t в ориентированном графе.", "theme": "Графы. Виды графов. Различные представления графов", "topic": "Орграф / пути длины k", "source": "Придумано по аналогии", "sourceType": "Придумано", "priority": "Средний", "difficulty": "Средняя"}, {"id": 58, "text": "Написать функцию двоичного поиска элемента по ключу в отсортированной таблице.", "theme": "Сортировки вставками и линейным выбором с подсчетом", "topic": "Двоичный поиск", "source": "Лабораторная 2", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Лёгкая"}, {"id": 59, "text": "Написать функцию сортировки таблицы методом простой вставки.", "theme": "Сортировки вставками и линейным выбором с подсчетом", "topic": "Сортировка вставками / C-код", "source": "Лабораторная 2", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Лёгкая"}, {"id": 60, "text": "Написать функцию сортировки таблицы методом Шелла.", "theme": "Сортировка Шелла", "topic": "Сортировка Шелла / C-код", "source": "Лабораторная 2", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Средняя"}, {"id": 61, "text": "Написать функцию сортировки таблицы методом линейного выбора с подсчётом.", "theme": "Сортировки вставками и линейным выбором с подсчетом", "topic": "Линейный выбор с подсчётом / C-код", "source": "Лабораторная 2", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Средняя"}, {"id": 62, "text": "Написать функцию сортировки таблицы просеиванием.", "theme": "Сортировка просеиванием", "topic": "Сортировка просеиванием / C-код", "source": "Лабораторная 2", "sourceType": "Лабораторные", "priority": "Низкий", "difficulty": "Сложная"}];
+let learned = JSON.parse(localStorage.getItem('aids2_theory_learned_v5') || '{}');
+let practiceDone = JSON.parse(localStorage.getItem('aids2_practice_done_v8') || '{}');
+let currentDeck = 'theory1';
+let currentCardIndex = 0;
+let flipped = false;
+function deckKey(deck, id) { return deck + ':' + id; }
+function saveLearned() { localStorage.setItem('aids2_theory_learned_v5', JSON.stringify(learned)); }
+function isLearned(deck, id) { return !!learned[deckKey(deck, id)]; }
+function practiceKey(id) { return 'practice:' + id; }
+function isPracticeDone(id) { return !!practiceDone[practiceKey(id)]; }
+function savePracticeDone() { localStorage.setItem('aids2_practice_done_v8', JSON.stringify(practiceDone)); }
+function togglePracticeDone(id) {
+  const key = practiceKey(id);
+  if (practiceDone[key]) delete practiceDone[key]; else practiceDone[key] = true;
+  savePracticeDone();
+  renderPracticeBank();
+}
+
+function formatMemoProgress(done, total) {
+  const percent = total ? Math.round(done * 100 / total) : 0;
+  return `${done}/${total} (${percent}%)`;
+}
+function updateMemoProgress() {
+  const practiceDoneCount = practiceBank.filter(item => isPracticeDone(item.id)).length;
+  const theory1Count = decks.theory1.filter(card => isLearned('theory1', card.id)).length;
+  const theory2Count = decks.theory2.filter(card => isLearned('theory2', card.id)).length;
+  const practiceEl = document.getElementById('memo-progress-practice');
+  const theory1El = document.getElementById('memo-progress-theory1');
+  const theory2El = document.getElementById('memo-progress-theory2');
+  if (practiceEl) practiceEl.textContent = formatMemoProgress(practiceDoneCount, practiceBank.length);
+  if (theory1El) theory1El.textContent = formatMemoProgress(theory1Count, decks.theory1.length);
+  if (theory2El) theory2El.textContent = formatMemoProgress(theory2Count, decks.theory2.length);
+}
+
+function priorityRank(priority) {
+  if (priority === 'Высокий') return 0;
+  if (priority === 'Средний') return 1;
+  return 2;
+}
+function chipPriorityClass(priority) {
+  if (priority === 'Высокий') return 'priority-high';
+  if (priority === 'Средний') return 'priority-medium';
+  return 'priority-low';
+}
+function difficultyRank(difficulty) {
+  if (difficulty === 'Лёгкая') return 0;
+  if (difficulty === 'Средняя') return 1;
+  if (difficulty === 'Сложная') return 2;
+  return 3;
+}
+function chipDifficultyClass(difficulty) {
+  if (difficulty === 'Лёгкая') return 'difficulty-easy';
+  if (difficulty === 'Средняя') return 'difficulty-medium';
+  if (difficulty === 'Сложная') return 'difficulty-hard';
+  return 'difficulty-very-hard';
+}
+function uniqueValues(items, key) {
+  return Array.from(new Set(items.map(x => x[key]))).sort((a,b) => a.localeCompare(b, 'ru'));
+}
+function fillPracticeBankFilters() {
+  const theme = document.getElementById('practiceThemeFilter');
+  const source = document.getElementById('practiceSourceFilter');
+  if (!theme || theme.dataset.ready) return;
+  theme.innerHTML = '<option value="all">Все темы</option>' + uniqueValues(practiceBank, 'theme').map(v => `<option value="${v}">${v}</option>`).join('');
+  source.innerHTML = '<option value="all">Все источники</option>' + uniqueValues(practiceBank, 'sourceType').map(v => `<option value="${v}">${v}</option>`).join('');
+  theme.dataset.ready = '1';
+}
+function renderPracticeBank() {
+  fillPracticeBankFilters();
+  const grid = document.getElementById('practiceBankGrid');
+  if (!grid) return;
+  const query = (document.getElementById('practiceSearch')?.value || '').trim().toLowerCase();
+  const themeFilter = document.getElementById('practiceThemeFilter')?.value || 'all';
+  const sourceFilter = document.getElementById('practiceSourceFilter')?.value || 'all';
+  const priorityFilter = document.getElementById('practicePriorityFilter')?.value || 'all';
+  const difficultyFilter = document.getElementById('practiceDifficultyFilter')?.value || 'all';
+  const statusFilter = document.getElementById('practiceStatusFilter')?.value || 'all';
+  const sort = document.getElementById('practiceSort')?.value || 'priority';
+  let items = practiceBank.filter(item => {
+    const hay = [item.text, item.theme, item.topic, item.source, item.sourceType, item.priority, item.difficulty].join(' ').toLowerCase();
+    if (query && !hay.includes(query)) return false;
+    if (themeFilter !== 'all' && item.theme !== themeFilter) return false;
+    if (sourceFilter !== 'all' && item.sourceType !== sourceFilter) return false;
+    if (priorityFilter !== 'all' && item.priority !== priorityFilter) return false;
+    if (difficultyFilter !== 'all' && item.difficulty !== difficultyFilter) return false;
+    if (statusFilter !== 'all') {
+      const done = isPracticeDone(item.id);
+      if (statusFilter === 'done' && !done) return false;
+      if (statusFilter === 'todo' && done) return false;
+    }
+    return true;
+  });
+  items.sort((a,b) => {
+    if (sort === 'number') return a.id - b.id;
+    if (sort === 'theme') return a.theme.localeCompare(b.theme, 'ru') || a.id - b.id;
+    if (sort === 'topic') return a.topic.localeCompare(b.topic, 'ru') || a.id - b.id;
+    if (sort === 'source') return a.source.localeCompare(b.source, 'ru') || a.id - b.id;
+    if (sort === 'difficulty-asc') return difficultyRank(a.difficulty) - difficultyRank(b.difficulty) || priorityRank(a.priority) - priorityRank(b.priority) || a.id - b.id;
+    if (sort === 'difficulty-desc') return difficultyRank(b.difficulty) - difficultyRank(a.difficulty) || priorityRank(a.priority) - priorityRank(b.priority) || a.id - b.id;
+    if (sort === 'status') return Number(isPracticeDone(a.id)) - Number(isPracticeDone(b.id)) || priorityRank(a.priority) - priorityRank(b.priority) || a.id - b.id;
+    return priorityRank(a.priority) - priorityRank(b.priority) || difficultyRank(a.difficulty) - difficultyRank(b.difficulty) || a.id - b.id;
+  });
+  const summary = document.getElementById('practiceBankSummary');
+  const doneTotal = practiceBank.filter(item => isPracticeDone(item.id)).length;
+  if (summary) summary.textContent = `Показано ${items.length} из ${practiceBank.length} задач. Выполнено ${doneTotal}/${practiceBank.length}.`;
+  updateMemoProgress();
+  grid.innerHTML = items.map(item => {
+    const done = isPracticeDone(item.id);
+    return `
+    <article class="practice-card ${done ? 'done' : ''}">
+      <h3><span class="num">${item.id}.</span> ${item.text}</h3>
+      <div class="chips">
+        <span class="chip priority ${chipPriorityClass(item.priority)}">приоритет: ${item.priority}</span>
+        <span class="chip ${chipDifficultyClass(item.difficulty)}">сложность: ${item.difficulty}</span>
+        <span class="chip topic">${item.topic}</span>
+        <span class="chip source">${item.source}</span>
+      </div>
+      <div class="practice-meta">
+        <p><strong>Тема экзамена:</strong> ${item.theme}</p>
+      </div>
+      <div class="practice-actions">
+        <span class="muted"><span class="learn-dot"></span>${done ? 'Задача отмечена' : 'Пока без отметки'}</span>
+        <button class="btn ${done ? 'warn' : 'good'}" onclick="togglePracticeDone(${item.id})">${done ? 'Снять отметку' : 'Отметить выполненной'}</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.remove('hidden');
+  document.getElementById('btn-' + tab).classList.add('active');
+  if (tab === 'theory1' || tab === 'theory2') renderGrid(tab);
+  if (tab === 'practicebank') renderPracticeBank();
+  if (tab === 'memo') updateMemoProgress();
+}
+function renderGrid(deck) {
+  const grid = document.getElementById('grid-' + deck);
+  if (!grid) return;
+  grid.innerHTML = decks[deck].map((card, idx) => {
+    const l = isLearned(deck, card.id);
+    const learnedTag = l ? '<span class="learned-info">выучено</span>' : '';
+    return `<article class="study-card ${l ? 'learned' : ''}" onclick="openCard('${deck}', ${idx})"><div><h3 class="card-title">${card.title}</h3><div class="card-meta"><span class="ticket-info">${card.ticket}</span>${learnedTag}</div></div><div class="card-actions"><span><span class="learn-dot"></span>${l ? 'Выучено' : 'Не отмечено'}</span><span>Открыть →</span></div></article>`;
+  }).join('');
+  updateProgress(deck);
+}
+function updateProgress(deck) {
+  const count = decks[deck].filter(c => isLearned(deck, c.id)).length;
+  const el = document.getElementById('progress-' + deck);
+  if (el) el.textContent = `Выучено ${count}/${decks[deck].length}`;
+  updateMemoProgress();
+}
+function updateAllProgress() { updateProgress('theory1'); updateProgress('theory2'); }
+function openCard(deck, index) {
+  currentDeck = deck;
+  currentCardIndex = index;
+  const card = decks[deck][index];
+  flipped = false;
+  document.getElementById('flipInner').classList.remove('flipped');
+  document.getElementById('flipBtn').textContent = 'Перевернуть';
+  document.getElementById('modalTitle').textContent = card.title;
+  document.querySelector('#modalFront h2').textContent = card.title;
+  document.getElementById('modalBack').innerHTML = card.html;
+  updateLearnButton();
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modal').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal').setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+  renderGrid(currentDeck);
+}
+function flipModalCard() {
+  flipped = !flipped;
+  document.getElementById('flipInner').classList.toggle('flipped', flipped);
+  document.getElementById('flipBtn').textContent = flipped ? 'К названию' : 'Перевернуть';
+}
+function toggleLearnedCurrent() {
+  const card = decks[currentDeck][currentCardIndex];
+  const key = deckKey(currentDeck, card.id);
+  if (learned[key]) delete learned[key]; else learned[key] = true;
+  saveLearned();
+  updateLearnButton();
+  renderGrid(currentDeck);
+}
+function updateLearnButton() {
+  const card = decks[currentDeck][currentCardIndex];
+  const btn = document.getElementById('learnBtn');
+  if (isLearned(currentDeck, card.id)) { btn.textContent = 'Снять отметку'; btn.classList.remove('good'); btn.classList.add('warn'); }
+  else { btn.textContent = 'Отметить выученной'; btn.classList.remove('warn'); btn.classList.add('good'); }
+}
+function openPrevCard() { openCard(currentDeck, (currentCardIndex - 1 + decks[currentDeck].length) % decks[currentDeck].length); }
+function openNextCard() { openCard(currentDeck, (currentCardIndex + 1) % decks[currentDeck].length); }
+document.addEventListener('keydown', (e) => {
+  const modalOpen = document.getElementById('modal').classList.contains('open');
+  if (!modalOpen) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipModalCard(); }
+  if (e.key === 'ArrowLeft') openPrevCard();
+  if (e.key === 'ArrowRight') openNextCard();
+});
+renderGrid('theory1');
+renderGrid('theory2');
+updateAllProgress();
+renderPracticeBank();
+updateMemoProgress();
+</script>
+</body>
+</html>
